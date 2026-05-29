@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="-n oder nicht">
+<title>Adjektivendungen · -n oder nicht</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0e0f13; --bg2:#15161c; --ink:#ece9e2; --muted:#8a8a96;
+    --line:rgba(255,255,255,.08); --amber:#d7a25a;
+    --green:#5fae73; --green-bg:rgba(95,174,115,.16);
+    --red:#cf6a64; --red-bg:rgba(207,106,100,.16);
+    --blue:#6ea8d8;
+    /* Deklinationstypen als Farbcode: schwach=blau, gemischt=amber, stark=grün */
+    --schwach:#6ea8d8; --gemischt:#d7a25a; --stark:#7bbf8a;
+    --serif:"Fraunces",Georgia,"Times New Roman",serif;
+    --sans:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    font-family:var(--sans);color:var(--ink);
+    background:
+      radial-gradient(120% 80% at 50% 120%, rgba(215,162,90,.10), transparent 60%),
+      linear-gradient(180deg,var(--bg),var(--bg2));
+    background-attachment:fixed;overflow:hidden;-webkit-user-select:none;user-select:none;
+  }
+  .app{height:100dvh;height:100vh;display:flex;flex-direction:column;
+    padding:max(10px,env(safe-area-inset-top)) 16px max(12px,env(safe-area-inset-bottom)) 16px;
+    max-width:560px;margin:0 auto;}
+
+  .top{display:flex;align-items:center;gap:8px;flex:0 0 auto;}
+  .brand{font-family:var(--serif);font-weight:500;font-size:13px;letter-spacing:.04em;color:var(--muted);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex-shrink:1;}
+  .brand b{color:var(--amber);font-weight:700;}
+  .stats{margin-left:auto;display:flex;gap:7px;align-items:center;font-size:11.5px;color:var(--muted);flex:0 0 auto;}
+  .stat{white-space:nowrap;}
+  .stat b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;}
+  .rec{color:var(--muted);} .rec b{color:var(--amber);}
+  .statbtn,.rulesbtn{font:inherit;color:var(--muted);background:rgba(255,255,255,.05);border:1px solid var(--line);
+    border-radius:999px;padding:4px 9px;cursor:pointer;white-space:nowrap;}
+  .statbtn b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;}
+  .rulesbtn{font-size:11.5px;font-weight:600;}
+  .statbtn:active,.rulesbtn:active{transform:scale(.95);}
+
+  .bar{height:3px;border-radius:3px;background:var(--line);margin-top:9px;overflow:hidden;flex:0 0 auto;}
+  .bar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--amber),#e8c98f);transition:width .5s ease;}
+
+  /* leerer Bereich oben: Platz fuer ein Bild-in-Bild-Video. Schiebt die
+     Bedienung nach unten in den Daumenbereich. */
+  .videozone{flex:0 0 auto;height:clamp(60px,18vh,150px);}
+
+  .stage{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;text-align:center;gap:9px;padding:2px 0 4px;}
+  .hint{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);}
+  .hint .hint2{color:var(--amber);opacity:.85;}
+  .sentence{font-family:var(--serif);font-weight:400;line-height:1.22;letter-spacing:-.005em;
+    font-size:clamp(20px,5.6vw,30px);max-width:100%;overflow-wrap:break-word;hyphens:auto;}
+  .sentence.in{animation:rise .3s cubic-bezier(.2,.7,.2,1);}
+  @keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  .adj b{font-weight:700;}
+  .blank{display:inline-block;min-width:1.5em;border-bottom:2px solid var(--amber);
+    vertical-align:baseline;margin-left:1px;opacity:.7;}
+  .end{font-weight:700;font-style:normal;text-decoration:none;border-bottom:2px solid transparent;}
+  .end.ok{color:var(--green);} .end.no{color:var(--red);text-decoration:line-through;}
+
+  .result{flex:0 0 auto;min-height:58px;display:flex;flex-direction:column;align-items:center;
+    justify-content:flex-start;gap:5px;text-align:center;padding:8px 4px 4px;}
+  .feedback{font-size:13.5px;min-height:18px;color:var(--muted);font-weight:600;}
+  .feedback .ok{color:var(--green);} .feedback .no{color:var(--red);}
+  .feedback .tap{color:var(--muted);font-weight:500;}
+  .rule{font-size:12.5px;color:var(--ink);opacity:.9;line-height:1.42;max-width:96%;min-height:15px;}
+  .rule b{color:var(--amber);font-weight:600;}
+  .tags{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;min-height:0;}
+  .chip{font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap;
+    border:1px solid var(--line);color:var(--muted);}
+  .chip.type-schwach{color:var(--schwach);border-color:rgba(110,168,216,.45);}
+  .chip.type-gemischt{color:var(--gemischt);border-color:rgba(215,162,90,.45);}
+  .chip.type-stark{color:var(--stark);border-color:rgba(123,191,138,.45);}
+  .chip.type-doppelt{color:var(--amber);border-color:rgba(215,162,90,.45);}
+  .chip.n-ja{color:var(--stark);border-color:rgba(123,191,138,.5);background:rgba(123,191,138,.1);}
+  .chip.n-nein{color:var(--muted);}
+  .chip.n-beides{color:var(--amber);border-color:rgba(215,162,90,.5);background:rgba(215,162,90,.1);}
+
+  .choices{flex:0 0 auto;display:grid;gap:10px;}
+  .choices.c2{grid-template-columns:1fr 1fr;}
+  .choices.c3{grid-template-columns:1fr 1fr 1fr;}
+  .choice{font-family:var(--serif);font-size:clamp(22px,6.5vw,30px);font-weight:600;color:var(--ink);
+    background:rgba(255,255,255,.045);border:1px solid var(--line);border-radius:16px;
+    padding:clamp(14px,3.4vh,22px) 4px;cursor:pointer;transition:transform .1s, background .15s, border-color .15s;}
+  .choice:active{transform:scale(.96);}
+  .choice:disabled{cursor:default;}
+  .choice.correct{background:var(--green-bg);border-color:var(--green);color:var(--green);}
+  .choice.wrong{background:var(--red-bg);border-color:var(--red);color:var(--red);}
+  .choice.dim{opacity:.35;}
+
+  .toolbar{flex:0 0 auto;display:flex;gap:9px;margin-top:10px;}
+  .toolbtn{flex:1;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+    background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:13px;padding:8px 4px;
+    cursor:pointer;color:var(--muted);transition:.15s;}
+  .toolbtn:active{transform:scale(.96);}
+  .toolbtn.on{color:var(--amber);border-color:rgba(215,162,90,.5);background:rgba(215,162,90,.1);}
+  .toolbtn .ti{font-size:17px;line-height:1;position:relative;}
+  .toolbtn .tl{font-size:10.5px;font-weight:600;letter-spacing:.02em;}
+  .badge{position:absolute;top:-7px;right:-9px;display:none;align-items:center;justify-content:center;
+    min-width:16px;height:16px;padding:0 4px;font-size:10px;font-weight:700;color:#1a1208;
+    background:var(--amber);border-radius:999px;}
+
+  /* Overlays */
+  .overlay{position:fixed;inset:0;background:rgba(8,8,11,.72);backdrop-filter:blur(4px);
+    display:none;align-items:center;justify-content:center;padding:24px;z-index:5;}
+  .overlay.show{display:flex;}
+  .card{background:var(--bg2);border:1px solid var(--line);border-radius:18px;padding:22px;max-width:330px;width:100%;text-align:center;}
+  .card h3{font-family:var(--serif);font-weight:600;font-size:19px;}
+  .card p{color:var(--muted);font-size:14px;margin:6px 0 18px;line-height:1.5;}
+  .row{display:flex;gap:10px;}
+  .row button{flex:1;padding:12px;border-radius:12px;font-family:var(--sans);font-weight:600;font-size:14px;cursor:pointer;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--ink);}
+  .row button.danger{background:var(--red-bg);border-color:var(--red);color:var(--red);}
+
+  .listoverlay{align-items:flex-end;}
+  @media(min-height:620px){ .listoverlay{align-items:center;} }
+  .panel{background:var(--bg2);border:1px solid var(--line);border-radius:18px;width:100%;max-width:460px;
+    max-height:86vh;display:flex;flex-direction:column;overflow:hidden;}
+  .panelhead{display:flex;align-items:center;gap:8px;padding:14px 14px 12px;border-bottom:1px solid var(--line);}
+  .panelhead h3{font-family:var(--serif);font-weight:600;font-size:16px;}
+  .panelhead .sp{flex:1;}
+  .iconbtn{background:none;border:1px solid var(--line);color:var(--muted);width:30px;height:30px;
+    border-radius:9px;font-size:14px;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;}
+  .iconbtn:active{transform:scale(.92);}
+  .toggle{font-family:var(--sans);font-size:12px;font-weight:600;color:var(--muted);background:rgba(255,255,255,.05);
+    border:1px solid var(--line);border-radius:999px;padding:6px 11px;cursor:pointer;white-space:nowrap;}
+  .toggle.on{color:var(--amber);border-color:rgba(215,162,90,.5);background:rgba(215,162,90,.12);}
+
+  .scroll{overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  .empty{color:var(--muted);font-size:13.5px;line-height:1.55;padding:30px 14px;text-align:center;}
+
+  /* Problemliste */
+  .problist{padding:4px 10px 12px;}
+  .prow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 6px;border-bottom:1px solid rgba(255,255,255,.05);}
+  .prow:last-child{border-bottom:none;}
+  .pmain{min-width:0;}
+  .psent{font-family:var(--serif);font-size:15px;color:var(--ink);line-height:1.3;}
+  .psent .pe{color:var(--green);font-weight:700;}
+  .pmeta-line{font-size:11px;color:var(--muted);margin-top:3px;}
+  .pright{display:flex;align-items:center;gap:8px;flex:0 0 auto;}
+  .tag{font-size:11px;font-weight:600;padding:2px 7px;border-radius:999px;white-space:nowrap;}
+  .tag.x{color:var(--red);background:var(--red-bg);}
+  .tag.s{color:var(--amber);background:rgba(215,162,90,.16);}
+  .dots{display:inline-flex;gap:3px;}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--line);}
+  .dot.on{background:var(--green);}
+
+  /* Regeln */
+  .rulesbody{padding:14px 16px 20px;}
+  .rintro{font-size:12.5px;color:var(--muted);line-height:1.55;margin-bottom:16px;}
+  .rsec{margin-bottom:18px;}
+  .rh{font-family:var(--serif);font-size:16px;font-weight:600;margin-bottom:8px;}
+  .rulesbody ol{margin:0 0 0 2px;padding:0;list-style:none;counter-reset:r;display:flex;flex-direction:column;gap:7px;}
+  .rulesbody ol li{font-size:13px;line-height:1.45;color:var(--ink);padding-left:24px;position:relative;counter-increment:r;}
+  .rulesbody ol li::before{content:counter(r);position:absolute;left:0;top:0;width:17px;height:17px;border-radius:50%;
+    background:rgba(215,162,90,.16);color:var(--amber);font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+  .rulesbody ul{list-style:none;display:flex;flex-direction:column;gap:5px;}
+  .rulesbody ul li{font-size:12.5px;line-height:1.45;color:var(--ink);padding-left:13px;position:relative;}
+  .rulesbody ul li::before{content:"·";position:absolute;left:3px;color:var(--muted);}
+  .rulesbody b{color:var(--amber);font-weight:600;}
+  .rulesbody .warn{color:var(--muted);font-size:12px;}
+  .rulesbody .warn::before{content:"⚠ ";color:var(--amber);}
+  .rsec.schwach{border-left:2px solid rgba(110,168,216,.5);padding-left:11px;}
+  .rsec.gemischt{border-left:2px solid rgba(215,162,90,.5);padding-left:11px;}
+  .rsec.stark{border-left:2px solid rgba(123,191,138,.5);padding-left:11px;}
+  .keyword{font-family:var(--serif);font-style:italic;color:var(--ink);}
+
+  /* Kategorien */
+  .catbody{padding:10px 12px 16px;}
+  .crow{display:flex;align-items:center;gap:10px;padding:11px 8px;border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer;}
+  .crow:last-child{border-bottom:none;}
+  .crow:active{background:rgba(255,255,255,.03);}
+  .cdot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;}
+  .cdot.schwach{background:var(--schwach);} .cdot.gemischt{background:var(--gemischt);}
+  .cdot.stark{background:var(--stark);} .cdot.doppelt{background:var(--amber);} .cdot.basis{background:var(--muted);}
+  .cname{flex:1;min-width:0;}
+  .cname .cn{font-size:13.5px;color:var(--ink);font-weight:600;}
+  .cname .cc{font-size:11px;color:var(--muted);margin-top:1px;}
+  .cprac{font-family:var(--sans);font-size:11.5px;font-weight:600;color:var(--muted);background:rgba(255,255,255,.05);
+    border:1px solid var(--line);border-radius:999px;padding:6px 10px;white-space:nowrap;}
+  .crow.active .cprac{color:var(--amber);border-color:rgba(215,162,90,.5);background:rgba(215,162,90,.12);}
+
+  .toast{position:fixed;left:50%;top:12%;transform:translate(-50%,-8px);z-index:9;
+    background:rgba(215,162,90,.16);border:1px solid var(--amber);color:#f0d9af;
+    font-size:13.5px;font-weight:600;padding:9px 16px;border-radius:999px;white-space:nowrap;
+    opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;}
+  .toast.show{opacity:1;transform:translate(-50%,0);}
+
+  .focusbar{flex:0 0 auto;display:none;align-items:center;justify-content:center;gap:8px;
+    font-size:11.5px;color:var(--amber);margin-top:7px;}
+  .focusbar.show{display:flex;}
+  .focusbar button{font:inherit;color:var(--muted);background:none;border:1px solid var(--line);
+    border-radius:999px;padding:3px 9px;cursor:pointer;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="brand"><b>-n</b> oder nicht · Adjektivendungen</div>
+    <div class="stats">
+      <span class="stat" title="Serie · Rekord">🔥 <b id="streak">0</b> <span class="rec">★ <b id="best">0</b></span></span>
+      <button class="statbtn" id="catStat" title="Kategorien">📚 <b id="learned">0</b>/<b id="total">0</b></button>
+      <button class="rulesbtn" id="rulesBtn">Regeln</button>
+    </div>
+  </div>
+  <div class="bar"><i id="barFill"></i></div>
+  <div class="toast" id="toast"></div>
+
+  <div class="videozone" id="videozone"></div>
+
+  <div class="focusbar" id="focusbar">
+    <span id="focusLabel"></span>
+    <button id="focusClear">alle üben</button>
+  </div>
+
+  <div class="stage">
+    <div class="hint">Welche Endung? <span class="hint2">· -n oder nicht?</span></div>
+    <div class="sentence" id="sentence">…</div>
+  </div>
+
+  <div class="result" id="result">
+    <div class="feedback" id="feedback">&nbsp;</div>
+    <div class="rule" id="rule"></div>
+    <div class="tags" id="tags"></div>
+  </div>
+
+  <div class="choices c2" id="choices"></div>
+
+  <div class="toolbar">
+    <button class="toolbtn" id="soundBtn" title="Satz vorlesen"><span class="ti" id="soundIcon">🔈</span><span class="tl">Ton</span></button>
+    <button class="toolbtn" id="catBtn" title="Kategorien üben"><span class="ti">📚</span><span class="tl">Kategorien</span></button>
+    <button class="toolbtn" id="listBtn" title="Schwächen"><span class="ti">⚑<span class="badge" id="probCount">0</span></span><span class="tl">Schwächen</span></button>
+    <button class="toolbtn" id="resetBtn" title="Zurücksetzen"><span class="ti">↺</span><span class="tl">Reset</span></button>
+  </div>
+</div>
+
+<!-- Reset -->
+<div class="overlay" id="overlay">
+  <div class="card">
+    <h3>Fortschritt löschen?</h3>
+    <p>Alle Statistiken und gemerkten Sätze werden zurückgesetzt. Das lässt sich nicht rückgängig machen.</p>
+    <div class="row">
+      <button id="cancelReset">Abbrechen</button>
+      <button class="danger" id="confirmReset">Löschen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Schwächen -->
+<div class="overlay listoverlay" id="listOverlay">
+  <div class="panel">
+    <div class="panelhead">
+      <h3 id="probTitle">Schwächen</h3>
+      <span class="sp"></span>
+      <button class="toggle" id="focusToggle">Nur diese üben</button>
+      <button class="iconbtn" id="closeList">✕</button>
+    </div>
+    <div class="scroll problist" id="probList"></div>
+  </div>
+</div>
+
+<!-- Kategorien -->
+<div class="overlay listoverlay" id="catOverlay">
+  <div class="panel">
+    <div class="panelhead">
+      <h3>Kategorien</h3>
+      <span class="sp"></span>
+      <button class="iconbtn" id="closeCat">✕</button>
+    </div>
+    <div class="scroll catbody" id="catBody"></div>
+  </div>
+</div>
+
+<!-- Regeln -->
+<div class="overlay listoverlay" id="rulesOverlay">
+  <div class="panel">
+    <div class="panelhead">
+      <h3>Regeln · wann -n?</h3>
+      <span class="sp"></span>
+      <button class="iconbtn" id="closeRules">✕</button>
+    </div>
+    <div class="scroll rulesbody">
+      <p class="rintro">Das einzige Suffix mit <b>n</b> ist <b>-en</b>. Die Frage „-n oder nicht“ heißt also immer: ist die Endung <span class="keyword">-en</span> oder etwas anderes (<span class="keyword">-e, -er, -es, -em</span>)? Typ-Farben: <span style="color:var(--schwach)">schwach</span> (nach der-Wort), <span style="color:var(--gemischt)">gemischt</span> (nach ein-Wort), <span style="color:var(--stark)">stark</span> (ohne solches Wort).</p>
+
+      <div class="rsec">
+        <div class="rh">Sechs Faustregeln für das -n</div>
+        <ol>
+          <li><b>Dativ Plural: immer -en.</b> Ausnahmslos, egal welcher Typ. „mit vielen alten Leuten“.</li>
+          <li><b>Plural nach einem der-Wort</b> (die, diese, alle, keine, meine, solche, welche, jene): <b>überall -en</b>.</li>
+          <li><b>Plural ohne solches Wort</b> (Zahlen, viele, einige, mehrere, andere, wenige, ein paar): Nominativ und Akkusativ <b>-e</b>, Genitiv <b>-er</b>, nur Dativ <b>-en</b>.</li>
+          <li><b>Genitiv Singular maskulin und neutrum: -en</b>, auch ohne Artikel, weil das Nomen schon -s trägt. „trotz schlechten Wetters“.</li>
+          <li><b>Schwach (nach der-Wort) im Singular:</b> -e nur im Nominativ und im Akkusativ feminin/neutrum, sonst -en.</li>
+          <li><b>Gemischt (nach ein-Wort) im Singular:</b> wie schwach, aber Nominativ maskulin = -er, Nominativ und Akkusativ neutrum = -es. Die -en-Stellen bleiben gleich.</li>
+        </ol>
+      </div>
+
+      <div class="rsec schwach">
+        <div class="rh">Ebenso nach (schwach, wie der/die/das)</div>
+        <ul>
+          <li>Singular: <span class="keyword">dies-, jen-, jed-, manch-, welch-, derjenige, derselbe, folgend-</span>.</li>
+          <li>Plural: <span class="keyword">diese, alle, manche, solche, welche, diejenigen, dieselben, beide, sämtliche, irgendwelche</span>, Possessiv (meine, deine), keine, Personalpronomen (Ihr lieben Freunde).</li>
+        </ul>
+      </div>
+
+      <div class="rsec gemischt">
+        <div class="rh">Ebenso nach (gemischt, wie ein)</div>
+        <ul>
+          <li>Singular: Possessivpronomen <span class="keyword">mein-, dein-, sein-</span> usw., <span class="keyword">kein-, irgendein-</span>.</li>
+        </ul>
+      </div>
+
+      <div class="rsec stark">
+        <div class="rh">Ebenso nach (stark, ohne Artikelwort)</div>
+        <ul>
+          <li>Singular: vorangestellter Genitiv (<span class="keyword">Evas roter Mantel</span>), <span class="keyword">dessen, wessen, manch, solch, welch</span>; Personalpronomen (<span class="keyword">du lieber Himmel</span>); <span class="keyword">allerlei, mancherlei, etwas, genug, mehr, viel, wenig, nichts</span>; substantivierte Adjektive (<span class="keyword">nichts Gutes</span>).</li>
+          <li>Plural: Zahlwörter, <span class="keyword">andere, einige, ein paar, mehrere, folgende, viele, wenige, zahlreiche, zahllose, etliche</span>, dessen, wessen, manch, solch, welch, all, beide, manche, sämtliche.</li>
+        </ul>
+      </div>
+
+      <div class="rsec">
+        <div class="rh">Strittig oder beides möglich</div>
+        <ul>
+          <li><b>beide, manche, sämtliche</b> kommen laut Vorlage sowohl schwach (-en) als auch stark (-e) vor. In der App zählen beide Endungen, bei diesen Sätzen.</li>
+          <li class="warn">Gebeugt zählt zum der-Wort (schwach): <span class="keyword">mancher gute Rat</span>. Ungebeugt ist stark: <span class="keyword">manch guter Rat</span>. Gleiches bei solch/solche und welch/welche.</li>
+          <li class="warn"><b>folgende</b> im Plural ist im echten Gebrauch schwankend (folgende interessante oder folgende interessanten). Die Vorlage führt es als stark, das ist nicht unumstritten.</li>
+          <li class="warn">Nach <span class="keyword">viele, wenige, einige, mehrere</span> ist die starke Beugung (-e) heute Standard, vereinzelt findet sich auch -en. In der App gilt -e als richtig.</li>
+        </ul>
+      </div>
+
+      <div class="rsec">
+        <div class="rh">Nur attributiv</div>
+        <ul>
+          <li>Diese Regeln betreffen Adjektive <b>vor</b> einem Nomen. Prädikativ (das Tier ist klein) bleibt das Adjektiv endungslos, nie -n.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const sentEl = $("sentence");
+const fbEl = $("feedback");
+const ruleEl = $("rule");
+const choicesEl = $("choices");
+const tagsEl = $("tags");
+
+/* ============================================================
+   DATEN
+   Jeder Eintrag: ein Satz mit einer Luecke an der Adjektivendung.
+   Felder:
+     id   eindeutig (fuer Speicherung)
+     pre  Text vor dem Adjektiv (enthaelt das ausloesende Wort)
+     stem Adjektivstamm (ohne Endung)
+     post Text nach dem Adjektiv (mit Nomen)
+     ans  akzeptierte Endung(en); mehrere = beides gilt
+     opts angezeigte Endungs-Buttons
+     type schwach | gemischt | stark | doppelt
+     loc  grammatische Stelle
+     trig ausloesendes Wort / Kategorie (Anzeige)
+     why  Erklaerung, immer auf das -n bezogen
+     cat  Kategorie-Schluessel
+     base true = Standardfall, wird seltener abgefragt
+   ============================================================ */
+const DATA = [
+/* ---- Plural ohne Artikelwort: stark ---- */
+{id:"ps1", pre:"Viele", stem:"alt", post:"Freunde wohnen in der Stadt.", ans:["e"], opts:["e","en"], type:"stark", loc:"Plural · Nominativ", trig:"viele", cat:"pl-stark",
+ why:"Nach <b>viele</b> (kein der-Wort) Plural stark. Nominativ = -e, kein -n. Mit Artikel: „die alten Freunde“."},
+{id:"ps2", pre:"Einige", stem:"klug", post:"Ideen helfen uns weiter.", ans:["e"], opts:["e","en"], type:"stark", loc:"Plural · Nominativ", trig:"einige", cat:"pl-stark",
+ why:"Nach <b>einige</b> (kein der-Wort) Plural stark. Nominativ = -e, kein -n. Mit Artikel: „die klugen Ideen“."},
+{id:"ps3", pre:"Mehrere", stem:"schön", post:"Tage stehen uns bevor.", ans:["e"], opts:["e","en"], type:"stark", loc:"Plural · Nominativ", trig:"mehrere", cat:"pl-stark",
+ why:"Nach <b>mehrere</b> (kein der-Wort) Plural stark. Nominativ = -e, kein -n. Mit Artikel: „die schönen Tage“."},
+{id:"ps4", pre:"Wenige", stem:"klein", post:"Kinder spielen draußen.", ans:["e"], opts:["e","en"], type:"stark", loc:"Plural · Nominativ", trig:"wenige", cat:"pl-stark",
+ why:"Nach <b>wenige</b> (kein der-Wort) Plural stark. Nominativ = -e, kein -n. Mit Artikel: „die kleinen Kinder“."},
+{id:"ps5", pre:"Andere", stem:"alt", post:"Freunde wohnen in der Stadt.", ans:["e"], opts:["e","en"], type:"stark", loc:"Plural · Nominativ", trig:"andere", cat:"pl-stark",
+ why:"Nach <b>andere</b> (kein der-Wort) Plural stark. Nominativ = -e, kein -n. Mit Artikel: „die alten Freunde“."},
+{id:"ps6", pre:"Zahlreiche", stem:"klug", post:"Ideen helfen uns weiter.", ans:["e"], opts:["e","en"], type:"stark", loc:"Plural · Nominativ", trig:"zahlreiche", cat:"pl-stark",
+ why:"Nach <b>zahlreiche</b> (kein der-Wort) Plural stark. Nominativ = -e, kein -n. Mit Artikel: „die klugen Ideen“."},
+{id:"ps7", pre:"Etliche", stem:"schön", post:"Tage stehen uns bevor.", ans:["e"], opts:["e","en"], type:"stark", loc:"Plural · Nominativ", trig:"etliche", cat:"pl-stark",
+ why:"Nach <b>etliche</b> (kein der-Wort) Plural stark. Nominativ = -e, kein -n. Mit Artikel: „die schönen Tage“."},
+{id:"ps8", pre:"Verschiedene", stem:"klein", post:"Kinder spielen draußen.", ans:["e"], opts:["e","en"], type:"stark", loc:"Plural · Nominativ", trig:"verschiedene", cat:"pl-stark",
+ why:"Nach <b>verschiedene</b> (kein der-Wort) Plural stark. Nominativ = -e, kein -n. Mit Artikel: „die kleinen Kinder“."},
+{id:"ps9", pre:"Einzelne", stem:"alt", post:"Freunde wohnen in der Stadt.", ans:["e"], opts:["e","en"], type:"stark", loc:"Plural · Nominativ", trig:"einzelne", cat:"pl-stark",
+ why:"Nach <b>einzelne</b> (kein der-Wort) Plural stark. Nominativ = -e, kein -n. Mit Artikel: „die alten Freunde“."},
+{id:"ps10", pre:"Unzählige", stem:"klug", post:"Ideen helfen uns weiter.", ans:["e"], opts:["e","en"], type:"stark", loc:"Plural · Nominativ", trig:"unzählige", cat:"pl-stark",
+ why:"Nach <b>unzählige</b> (kein der-Wort) Plural stark. Nominativ = -e, kein -n. Mit Artikel: „die klugen Ideen“."},
+{id:"ps11", pre:"Ich habe viele", stem:"alt", post:"Freunde besucht.", ans:["e"], opts:["e","en"], type:"stark", loc:"Plural · Akkusativ", trig:"viele", cat:"pl-stark",
+ why:"Nach <b>viele</b> stark. Akkusativ Plural = -e, kein -n. Mit Artikel: „die alten Freunde“."},
+{id:"ps12", pre:"Sie hatte einige", stem:"klug", post:"Ideen entwickelt.", ans:["e"], opts:["e","en"], type:"stark", loc:"Plural · Akkusativ", trig:"einige", cat:"pl-stark",
+ why:"Nach <b>einige</b> stark. Akkusativ Plural = -e, kein -n. Mit Artikel: „die klugen Ideen“."},
+{id:"ps13", pre:"Wir brauchen mehrere", stem:"gut", post:"Lösungen.", ans:["e"], opts:["e","en"], type:"stark", loc:"Plural · Akkusativ", trig:"mehrere", cat:"pl-stark",
+ why:"Nach <b>mehrere</b> stark. Akkusativ Plural = -e, kein -n. Mit Artikel: „die guten Lösungen.“."},
+{id:"ps14", pre:"Ich kenne wenige", stem:"klein", post:"Fehler in dem Text.", ans:["e"], opts:["e","en"], type:"stark", loc:"Plural · Akkusativ", trig:"wenige", cat:"pl-stark",
+ why:"Nach <b>wenige</b> stark. Akkusativ Plural = -e, kein -n. Mit Artikel: „die kleinen Fehler“."},
+{id:"ps15", pre:"Ich habe andere", stem:"alt", post:"Freunde besucht.", ans:["e"], opts:["e","en"], type:"stark", loc:"Plural · Akkusativ", trig:"andere", cat:"pl-stark",
+ why:"Nach <b>andere</b> stark. Akkusativ Plural = -e, kein -n. Mit Artikel: „die alten Freunde“."},
+{id:"ps16", pre:"Sie hatte zahlreiche", stem:"klug", post:"Ideen entwickelt.", ans:["e"], opts:["e","en"], type:"stark", loc:"Plural · Akkusativ", trig:"zahlreiche", cat:"pl-stark",
+ why:"Nach <b>zahlreiche</b> stark. Akkusativ Plural = -e, kein -n. Mit Artikel: „die klugen Ideen“."},
+{id:"ps17", pre:"Wir brauchen etliche", stem:"gut", post:"Lösungen.", ans:["e"], opts:["e","en"], type:"stark", loc:"Plural · Akkusativ", trig:"etliche", cat:"pl-stark",
+ why:"Nach <b>etliche</b> stark. Akkusativ Plural = -e, kein -n. Mit Artikel: „die guten Lösungen.“."},
+{id:"ps18", pre:"Ich kenne verschiedene", stem:"klein", post:"Fehler in dem Text.", ans:["e"], opts:["e","en"], type:"stark", loc:"Plural · Akkusativ", trig:"verschiedene", cat:"pl-stark",
+ why:"Nach <b>verschiedene</b> stark. Akkusativ Plural = -e, kein -n. Mit Artikel: „die kleinen Fehler“."},
+{id:"ps19", pre:"Ich habe einzelne", stem:"alt", post:"Freunde besucht.", ans:["e"], opts:["e","en"], type:"stark", loc:"Plural · Akkusativ", trig:"einzelne", cat:"pl-stark",
+ why:"Nach <b>einzelne</b> stark. Akkusativ Plural = -e, kein -n. Mit Artikel: „die alten Freunde“."},
+{id:"ps20", pre:"Sie hatte unzählige", stem:"klug", post:"Ideen entwickelt.", ans:["e"], opts:["e","en"], type:"stark", loc:"Plural · Akkusativ", trig:"unzählige", cat:"pl-stark",
+ why:"Nach <b>unzählige</b> stark. Akkusativ Plural = -e, kein -n. Mit Artikel: „die klugen Ideen“."},
+{id:"ps21", pre:"Ich habe zwei", stem:"alt", post:"Bücher gelesen.", ans:["e"], opts:["e","en"], type:"stark", loc:"Plural · Akkusativ", trig:"Zahlwort (zwei)", cat:"pl-stark",
+ why:"Nach Grundzahlen (zwei) bleibt das Adjektiv stark. Akkusativ Plural = -e, kein -n."},
+{id:"ps22", pre:"Sie hat drei", stem:"klug", post:"Ideen vorgestellt.", ans:["e"], opts:["e","en"], type:"stark", loc:"Plural · Akkusativ", trig:"Zahlwort (drei)", cat:"pl-stark",
+ why:"Nach Grundzahlen (drei) bleibt das Adjektiv stark. Akkusativ Plural = -e, kein -n."},
+{id:"ps23", pre:"Wir haben vier", stem:"schön", post:"Tage erlebt.", ans:["e"], opts:["e","en"], type:"stark", loc:"Plural · Akkusativ", trig:"Zahlwort (vier)", cat:"pl-stark",
+ why:"Nach Grundzahlen (vier) bleibt das Adjektiv stark. Akkusativ Plural = -e, kein -n."},
+{id:"ps24", pre:"Ich habe fünf", stem:"alt", post:"Bücher gelesen.", ans:["e"], opts:["e","en"], type:"stark", loc:"Plural · Akkusativ", trig:"Zahlwort (fünf)", cat:"pl-stark",
+ why:"Nach Grundzahlen (fünf) bleibt das Adjektiv stark. Akkusativ Plural = -e, kein -n."},
+{id:"ps25", pre:"Sie hat sechs", stem:"klug", post:"Ideen vorgestellt.", ans:["e"], opts:["e","en"], type:"stark", loc:"Plural · Akkusativ", trig:"Zahlwort (sechs)", cat:"pl-stark",
+ why:"Nach Grundzahlen (sechs) bleibt das Adjektiv stark. Akkusativ Plural = -e, kein -n."},
+{id:"ps26", pre:"Wir haben sieben", stem:"schön", post:"Tage erlebt.", ans:["e"], opts:["e","en"], type:"stark", loc:"Plural · Akkusativ", trig:"Zahlwort (sieben)", cat:"pl-stark",
+ why:"Nach Grundzahlen (sieben) bleibt das Adjektiv stark. Akkusativ Plural = -e, kein -n."},
+{id:"ps27", pre:"Ich habe zehn", stem:"alt", post:"Bücher gelesen.", ans:["e"], opts:["e","en"], type:"stark", loc:"Plural · Akkusativ", trig:"Zahlwort (zehn)", cat:"pl-stark",
+ why:"Nach Grundzahlen (zehn) bleibt das Adjektiv stark. Akkusativ Plural = -e, kein -n."},
+{id:"ps28", pre:"Hier sind", stem:"schön", post:"Bilder zu sehen.", ans:["e"], opts:["e","en"], type:"stark", loc:"Plural · Nominativ", trig:"ohne Artikelwort", cat:"pl-stark",
+ why:"Ohne Artikelwort ist das Adjektiv im Plural stark. Nominativ = -e, kein -n."},
+{id:"ps29", pre:"Es gibt", stem:"gut", post:"Argumente dafür.", ans:["e"], opts:["e","en"], type:"stark", loc:"Plural · Akkusativ", trig:"ohne Artikelwort", cat:"pl-stark",
+ why:"Ohne Artikelwort stark. Akkusativ Plural = -e, kein -n."},
+{id:"ps30", pre:"Wir hatten mehr", stem:"gut", post:"Argumente.", ans:["e"], opts:["e","en"], type:"stark", loc:"Plural · Akkusativ", trig:"mehr", cat:"pl-stark",
+ why:"Nach <b>mehr</b> stark. Akkusativ Plural = -e, kein -n."},
+{id:"ps31", pre:"Da kamen lauter", stem:"alt", post:"Bekannte vorbei.", ans:["e"], opts:["e","en"], type:"stark", loc:"Plural · Nominativ", trig:"lauter", cat:"pl-stark",
+ why:"Das undeklinierte <b>lauter</b> macht das Adjektiv stark. Nominativ Plural = -e, kein -n."},
+{id:"ps32", pre:"Beachten Sie folgende", stem:"wichtig", post:"Punkte.", ans:["e"], opts:["e","en"], type:"stark", loc:"Plural · Akkusativ", trig:"folgende (variabel)", cat:"pl-stark",
+ why:"Nach <b>folgende</b> schwankt die Beugung. Heute meist stark, also Akkusativ = -e. Die schwache Form auf -en ist ebenfalls belegt."},
+{id:"ps33", pre:"Ich spreche mit vielen", stem:"alt", post:"Freunden über das Thema.", ans:["en"], opts:["e","en"], type:"stark", loc:"Plural · Dativ", trig:"vielen", cat:"pl-stark",
+ why:"Dativ Plural endet immer auf -en, stark wie schwach. Nach <b>vielen</b> mit -n."},
+{id:"ps34", pre:"Sie kam mit einigen", stem:"gut", post:"Ideen zurück.", ans:["en"], opts:["e","en"], type:"stark", loc:"Plural · Dativ", trig:"einigen", cat:"pl-stark",
+ why:"Dativ Plural endet immer auf -en, stark wie schwach. Nach <b>einigen</b> mit -n."},
+{id:"ps35", pre:"Wir rechnen mit mehreren", stem:"schwer", post:"Aufgaben.", ans:["en"], opts:["e","en"], type:"stark", loc:"Plural · Dativ", trig:"mehreren", cat:"pl-stark",
+ why:"Dativ Plural endet immer auf -en, stark wie schwach. Nach <b>mehreren</b> mit -n."},
+{id:"ps36", pre:"Ich spreche mit wenigen", stem:"alt", post:"Freunden über das Thema.", ans:["en"], opts:["e","en"], type:"stark", loc:"Plural · Dativ", trig:"wenigen", cat:"pl-stark",
+ why:"Dativ Plural endet immer auf -en, stark wie schwach. Nach <b>wenigen</b> mit -n."},
+{id:"ps37", pre:"Sie kam mit zahlreichen", stem:"gut", post:"Ideen zurück.", ans:["en"], opts:["e","en"], type:"stark", loc:"Plural · Dativ", trig:"zahlreichen", cat:"pl-stark",
+ why:"Dativ Plural endet immer auf -en, stark wie schwach. Nach <b>zahlreichen</b> mit -n."},
+{id:"ps38", pre:"Wir rechnen mit etlichen", stem:"schwer", post:"Aufgaben.", ans:["en"], opts:["e","en"], type:"stark", loc:"Plural · Dativ", trig:"etlichen", cat:"pl-stark",
+ why:"Dativ Plural endet immer auf -en, stark wie schwach. Nach <b>etlichen</b> mit -n."},
+{id:"ps39", pre:"Ich spreche mit verschiedenen", stem:"alt", post:"Freunden über das Thema.", ans:["en"], opts:["e","en"], type:"stark", loc:"Plural · Dativ", trig:"verschiedenen", cat:"pl-stark",
+ why:"Dativ Plural endet immer auf -en, stark wie schwach. Nach <b>verschiedenen</b> mit -n."},
+{id:"ps40", pre:"Sie kam mit unzähligen", stem:"gut", post:"Ideen zurück.", ans:["en"], opts:["e","en"], type:"stark", loc:"Plural · Dativ", trig:"unzähligen", cat:"pl-stark",
+ why:"Dativ Plural endet immer auf -en, stark wie schwach. Nach <b>unzähligen</b> mit -n."},
+{id:"ps41", pre:"die Meinung vieler", stem:"alt", post:"Freunde", ans:["er"], opts:["er","en"], type:"stark", loc:"Plural · Genitiv", trig:"vieler", cat:"pl-stark",
+ why:"Genitiv Plural stark = -er, nicht -en. Nach <b>vieler</b> kein -n."},
+{id:"ps42", pre:"trotz einiger", stem:"schön", post:"Tage konnten wir nicht raus.", ans:["er"], opts:["er","en"], type:"stark", loc:"Plural · Genitiv", trig:"einiger", cat:"pl-stark",
+ why:"Genitiv Plural stark = -er, nicht -en. Nach <b>einiger</b> kein -n."},
+{id:"ps43", pre:"die Sorgen mehrerer", stem:"klug", post:"Eltern", ans:["er"], opts:["er","en"], type:"stark", loc:"Plural · Genitiv", trig:"mehrerer", cat:"pl-stark",
+ why:"Genitiv Plural stark = -er, nicht -en. Nach <b>mehrerer</b> kein -n."},
+{id:"ps44", pre:"die Meinung weniger", stem:"alt", post:"Freunde", ans:["er"], opts:["er","en"], type:"stark", loc:"Plural · Genitiv", trig:"weniger", cat:"pl-stark",
+ why:"Genitiv Plural stark = -er, nicht -en. Nach <b>weniger</b> kein -n."},
+{id:"ps45", pre:"trotz zahlreicher", stem:"schön", post:"Tage konnten wir nicht raus.", ans:["er"], opts:["er","en"], type:"stark", loc:"Plural · Genitiv", trig:"zahlreicher", cat:"pl-stark",
+ why:"Genitiv Plural stark = -er, nicht -en. Nach <b>zahlreicher</b> kein -n."},
+{id:"ps46", pre:"die Sorgen etlicher", stem:"klug", post:"Eltern", ans:["er"], opts:["er","en"], type:"stark", loc:"Plural · Genitiv", trig:"etlicher", cat:"pl-stark",
+ why:"Genitiv Plural stark = -er, nicht -en. Nach <b>etlicher</b> kein -n."},
+{id:"ps47", pre:"die Meinung verschiedener", stem:"alt", post:"Freunde", ans:["er"], opts:["er","en"], type:"stark", loc:"Plural · Genitiv", trig:"verschiedener", cat:"pl-stark",
+ why:"Genitiv Plural stark = -er, nicht -en. Nach <b>verschiedener</b> kein -n."},
+/* ---- Plural nach der-Wort: schwach ---- */
+{id:"pw1", pre:"Die", stem:"alt", post:"Freunde wohnen in der Stadt.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Nominativ", trig:"die", cat:"pl-schwach",
+ why:"<b>die</b> wirkt im Plural wie der bestimmte Artikel (der-Wort). Nach einem der-Wort ist im Plural die Endung immer -en. Mit -n."},
+{id:"pw2", pre:"Diese", stem:"klug", post:"Ideen helfen uns weiter.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Nominativ", trig:"diese", cat:"pl-schwach",
+ why:"<b>diese</b> wirkt im Plural wie der bestimmte Artikel (der-Wort). Nach einem der-Wort ist im Plural die Endung immer -en. Mit -n."},
+{id:"pw3", pre:"Jene", stem:"schön", post:"Tage stehen uns bevor.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Nominativ", trig:"jene", cat:"pl-schwach",
+ why:"<b>jene</b> wirkt im Plural wie der bestimmte Artikel (der-Wort). Nach einem der-Wort ist im Plural die Endung immer -en. Mit -n."},
+{id:"pw4", pre:"Alle", stem:"klein", post:"Kinder spielen draußen.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Nominativ", trig:"alle", cat:"pl-schwach",
+ why:"<b>alle</b> wirkt im Plural wie der bestimmte Artikel (der-Wort). Nach einem der-Wort ist im Plural die Endung immer -en. Mit -n."},
+{id:"pw5", pre:"Keine", stem:"alt", post:"Freunde wohnen in der Stadt.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Nominativ", trig:"keine", cat:"pl-schwach",
+ why:"<b>keine</b> wirkt im Plural wie der bestimmte Artikel (der-Wort). Nach einem der-Wort ist im Plural die Endung immer -en. Mit -n."},
+{id:"pw6", pre:"Meine", stem:"klug", post:"Ideen helfen uns weiter.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Nominativ", trig:"meine", cat:"pl-schwach",
+ why:"<b>meine</b> wirkt im Plural wie der bestimmte Artikel (der-Wort). Nach einem der-Wort ist im Plural die Endung immer -en. Mit -n."},
+{id:"pw7", pre:"Deine", stem:"schön", post:"Tage stehen uns bevor.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Nominativ", trig:"deine", cat:"pl-schwach",
+ why:"<b>deine</b> wirkt im Plural wie der bestimmte Artikel (der-Wort). Nach einem der-Wort ist im Plural die Endung immer -en. Mit -n."},
+{id:"pw8", pre:"Seine", stem:"klein", post:"Kinder spielen draußen.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Nominativ", trig:"seine", cat:"pl-schwach",
+ why:"<b>seine</b> wirkt im Plural wie der bestimmte Artikel (der-Wort). Nach einem der-Wort ist im Plural die Endung immer -en. Mit -n."},
+{id:"pw9", pre:"Ihre", stem:"alt", post:"Freunde wohnen in der Stadt.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Nominativ", trig:"ihre", cat:"pl-schwach",
+ why:"<b>ihre</b> wirkt im Plural wie der bestimmte Artikel (der-Wort). Nach einem der-Wort ist im Plural die Endung immer -en. Mit -n."},
+{id:"pw10", pre:"Unsere", stem:"klug", post:"Ideen helfen uns weiter.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Nominativ", trig:"unsere", cat:"pl-schwach",
+ why:"<b>unsere</b> wirkt im Plural wie der bestimmte Artikel (der-Wort). Nach einem der-Wort ist im Plural die Endung immer -en. Mit -n."},
+{id:"pw11", pre:"Eure", stem:"schön", post:"Tage stehen uns bevor.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Nominativ", trig:"eure", cat:"pl-schwach",
+ why:"<b>eure</b> wirkt im Plural wie der bestimmte Artikel (der-Wort). Nach einem der-Wort ist im Plural die Endung immer -en. Mit -n."},
+{id:"pw12", pre:"Solche", stem:"klein", post:"Kinder spielen draußen.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Nominativ", trig:"solche", cat:"pl-schwach",
+ why:"<b>solche</b> wirkt im Plural wie der bestimmte Artikel (der-Wort). Nach einem der-Wort ist im Plural die Endung immer -en. Mit -n."},
+{id:"pw13", pre:"Irgendwelche", stem:"alt", post:"Freunde wohnen in der Stadt.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Nominativ", trig:"irgendwelche", cat:"pl-schwach",
+ why:"<b>irgendwelche</b> wirkt im Plural wie der bestimmte Artikel (der-Wort). Nach einem der-Wort ist im Plural die Endung immer -en. Mit -n."},
+{id:"pw14", pre:"Dieselben", stem:"klug", post:"Ideen helfen uns weiter.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Nominativ", trig:"dieselben", cat:"pl-schwach",
+ why:"<b>dieselben</b> wirkt im Plural wie der bestimmte Artikel (der-Wort). Nach einem der-Wort ist im Plural die Endung immer -en. Mit -n."},
+{id:"pw15", pre:"Ich habe die", stem:"alt", post:"Freunde besucht.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Akkusativ", trig:"die", cat:"pl-schwach",
+ why:"Nach dem der-Wort <b>die</b> ist im Plural die Endung -en. Mit -n."},
+{id:"pw16", pre:"Sie hat diese", stem:"klug", post:"Ideen entwickelt.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Akkusativ", trig:"diese", cat:"pl-schwach",
+ why:"Nach dem der-Wort <b>diese</b> ist im Plural die Endung -en. Mit -n."},
+{id:"pw17", pre:"Wir brauchen jene", stem:"gut", post:"Lösungen.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Akkusativ", trig:"jene", cat:"pl-schwach",
+ why:"Nach dem der-Wort <b>jene</b> ist im Plural die Endung -en. Mit -n."},
+{id:"pw18", pre:"Ich kenne alle", stem:"klein", post:"Fehler in dem Text.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Akkusativ", trig:"alle", cat:"pl-schwach",
+ why:"Nach dem der-Wort <b>alle</b> ist im Plural die Endung -en. Mit -n."},
+{id:"pw19", pre:"Ich habe keine", stem:"alt", post:"Freunde besucht.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Akkusativ", trig:"keine", cat:"pl-schwach",
+ why:"Nach dem der-Wort <b>keine</b> ist im Plural die Endung -en. Mit -n."},
+{id:"pw20", pre:"Sie hat meine", stem:"klug", post:"Ideen entwickelt.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Akkusativ", trig:"meine", cat:"pl-schwach",
+ why:"Nach dem der-Wort <b>meine</b> ist im Plural die Endung -en. Mit -n."},
+{id:"pw21", pre:"Wir brauchen deine", stem:"gut", post:"Lösungen.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Akkusativ", trig:"deine", cat:"pl-schwach",
+ why:"Nach dem der-Wort <b>deine</b> ist im Plural die Endung -en. Mit -n."},
+{id:"pw22", pre:"Ich kenne seine", stem:"klein", post:"Fehler in dem Text.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Akkusativ", trig:"seine", cat:"pl-schwach",
+ why:"Nach dem der-Wort <b>seine</b> ist im Plural die Endung -en. Mit -n."},
+{id:"pw23", pre:"Ich habe ihre", stem:"alt", post:"Freunde besucht.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Akkusativ", trig:"ihre", cat:"pl-schwach",
+ why:"Nach dem der-Wort <b>ihre</b> ist im Plural die Endung -en. Mit -n."},
+{id:"pw24", pre:"Sie hat unsere", stem:"klug", post:"Ideen entwickelt.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Akkusativ", trig:"unsere", cat:"pl-schwach",
+ why:"Nach dem der-Wort <b>unsere</b> ist im Plural die Endung -en. Mit -n."},
+{id:"pw25", pre:"Wir brauchen eure", stem:"gut", post:"Lösungen.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Akkusativ", trig:"eure", cat:"pl-schwach",
+ why:"Nach dem der-Wort <b>eure</b> ist im Plural die Endung -en. Mit -n."},
+{id:"pw26", pre:"Ich kenne solche", stem:"klein", post:"Fehler in dem Text.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Akkusativ", trig:"solche", cat:"pl-schwach",
+ why:"Nach dem der-Wort <b>solche</b> ist im Plural die Endung -en. Mit -n."},
+{id:"pw27", pre:"Ich habe irgendwelche", stem:"alt", post:"Freunde besucht.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Akkusativ", trig:"irgendwelche", cat:"pl-schwach",
+ why:"Nach dem der-Wort <b>irgendwelche</b> ist im Plural die Endung -en. Mit -n."},
+{id:"pw28", pre:"Sie hat dieselben", stem:"klug", post:"Ideen entwickelt.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Akkusativ", trig:"dieselben", cat:"pl-schwach",
+ why:"Nach dem der-Wort <b>dieselben</b> ist im Plural die Endung -en. Mit -n."},
+{id:"pw29", pre:"Ich rede mit diesen", stem:"alt", post:"Freunden gerne.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Dativ", trig:"diesen", cat:"pl-schwach",
+ why:"Dativ Plural immer -en, hier zusätzlich nach dem der-Wort <b>diesen</b>. Mit -n."},
+{id:"pw30", pre:"Sie kam mit allen", stem:"klug", post:"Ideen zurück.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Dativ", trig:"allen", cat:"pl-schwach",
+ why:"Dativ Plural immer -en, hier zusätzlich nach dem der-Wort <b>allen</b>. Mit -n."},
+{id:"pw31", pre:"Wir arbeiten mit keinen", stem:"schwer", post:"Aufgaben.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Dativ", trig:"keinen", cat:"pl-schwach",
+ why:"Dativ Plural immer -en, hier zusätzlich nach dem der-Wort <b>keinen</b>. Mit -n."},
+{id:"pw32", pre:"Ich rede mit meinen", stem:"alt", post:"Freunden gerne.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Dativ", trig:"meinen", cat:"pl-schwach",
+ why:"Dativ Plural immer -en, hier zusätzlich nach dem der-Wort <b>meinen</b>. Mit -n."},
+{id:"pw33", pre:"Sie kam mit ihren", stem:"klug", post:"Ideen zurück.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Dativ", trig:"ihren", cat:"pl-schwach",
+ why:"Dativ Plural immer -en, hier zusätzlich nach dem der-Wort <b>ihren</b>. Mit -n."},
+{id:"pw34", pre:"Wir arbeiten mit unseren", stem:"schwer", post:"Aufgaben.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Dativ", trig:"unseren", cat:"pl-schwach",
+ why:"Dativ Plural immer -en, hier zusätzlich nach dem der-Wort <b>unseren</b>. Mit -n."},
+{id:"pw35", pre:"Ich rede mit solchen", stem:"alt", post:"Freunden gerne.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Dativ", trig:"solchen", cat:"pl-schwach",
+ why:"Dativ Plural immer -en, hier zusätzlich nach dem der-Wort <b>solchen</b>. Mit -n."},
+{id:"pw36", pre:"die Stimmen dieser", stem:"alt", post:"Freunde", ans:["en"], opts:["er","en"], type:"schwach", loc:"Plural · Genitiv", trig:"dieser", cat:"pl-schwach",
+ why:"Genitiv Plural nach einem der-Wort = -en (nicht das starke -er). Nach <b>dieser</b> mit -n."},
+{id:"pw37", pre:"die Wirkung aller", stem:"klug", post:"Ideen", ans:["en"], opts:["er","en"], type:"schwach", loc:"Plural · Genitiv", trig:"aller", cat:"pl-schwach",
+ why:"Genitiv Plural nach einem der-Wort = -en (nicht das starke -er). Nach <b>aller</b> mit -n."},
+{id:"pw38", pre:"der Anblick keiner", stem:"schön", post:"Tage", ans:["en"], opts:["er","en"], type:"schwach", loc:"Plural · Genitiv", trig:"keiner", cat:"pl-schwach",
+ why:"Genitiv Plural nach einem der-Wort = -en (nicht das starke -er). Nach <b>keiner</b> mit -n."},
+{id:"pw39", pre:"die Stimmen meiner", stem:"alt", post:"Freunde", ans:["en"], opts:["er","en"], type:"schwach", loc:"Plural · Genitiv", trig:"meiner", cat:"pl-schwach",
+ why:"Genitiv Plural nach einem der-Wort = -en (nicht das starke -er). Nach <b>meiner</b> mit -n."},
+{id:"pw40", pre:"die Wirkung solcher", stem:"klug", post:"Ideen", ans:["en"], opts:["er","en"], type:"schwach", loc:"Plural · Genitiv", trig:"solcher", cat:"pl-schwach",
+ why:"Genitiv Plural nach einem der-Wort = -en (nicht das starke -er). Nach <b>solcher</b> mit -n."},
+{id:"pw41", pre:"Ihr", stem:"lieb", post:"Freunde, hört zu!", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Nominativ", trig:"Personalpronomen „ihr“", cat:"pl-schwach",
+ why:"Nach dem Personalpronomen <b>ihr</b> im Plural -en. Mit -n."},
+{id:"pw42", pre:"Wir", stem:"tapfer", post:"Helfer geben nicht auf.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Nominativ", trig:"Personalpronomen „wir“", cat:"pl-schwach",
+ why:"Nach <b>wir</b> im Plural -en. Mit -n."},
+/* ---- Plural: beide / manche / saemtliche ---- */
+{id:"pd1", pre:"Beide", stem:"alt", post:"Freunde sind eingeladen.", ans:["e","en"], opts:["e","en"], type:"doppelt", loc:"Plural · Nominativ", trig:"beide", cat:"pl-doppelt",
+ why:"Nach <b>beide</b> sind beide Beugungen belegt: stark „alte“ und schwach „alten“. -n möglich, aber nicht zwingend."},
+{id:"pd2", pre:"Manche", stem:"klug", post:"Ideen helfen weiter.", ans:["e","en"], opts:["e","en"], type:"doppelt", loc:"Plural · Nominativ", trig:"manche", cat:"pl-doppelt",
+ why:"Nach <b>manche</b> sind beide Beugungen belegt: stark „kluge“ und schwach „klugen“. -n möglich, aber nicht zwingend."},
+{id:"pd3", pre:"Sämtliche", stem:"gut", post:"Bücher liegen hier.", ans:["e","en"], opts:["e","en"], type:"doppelt", loc:"Plural · Nominativ", trig:"sämtliche", cat:"pl-doppelt",
+ why:"Nach <b>sämtliche</b> sind beide Beugungen belegt: stark „gute“ und schwach „guten“. -n möglich, aber nicht zwingend."},
+{id:"pd4", pre:"Ich kenne beide", stem:"alt", post:"Freunde sind eingeladen.", ans:["e","en"], opts:["e","en"], type:"doppelt", loc:"Plural · Akkusativ", trig:"beide", cat:"pl-doppelt",
+ why:"Nach <b>beide</b>: -e oder -en. Beide korrekt."},
+{id:"pd5", pre:"Ich kenne manche", stem:"klug", post:"Ideen helfen weiter.", ans:["e","en"], opts:["e","en"], type:"doppelt", loc:"Plural · Akkusativ", trig:"manche", cat:"pl-doppelt",
+ why:"Nach <b>manche</b>: -e oder -en. Beide korrekt."},
+{id:"pd6", pre:"Ich kenne sämtliche", stem:"gut", post:"Bücher liegen hier.", ans:["e","en"], opts:["e","en"], type:"doppelt", loc:"Plural · Akkusativ", trig:"sämtliche", cat:"pl-doppelt",
+ why:"Nach <b>sämtliche</b>: -e oder -en. Beide korrekt."},
+{id:"pd7", pre:"Es gibt hier beide", stem:"klug", post:"Ideen helfen weiter.", ans:["e","en"], opts:["e","en"], type:"doppelt", loc:"Plural · Akkusativ", trig:"beide", cat:"pl-doppelt",
+ why:"Wieder <b>beide</b>: -e und -en sind beide zulässig."},
+{id:"pd8", pre:"Es gibt hier manche", stem:"gut", post:"Bücher liegen hier.", ans:["e","en"], opts:["e","en"], type:"doppelt", loc:"Plural · Akkusativ", trig:"manche", cat:"pl-doppelt",
+ why:"Wieder <b>manche</b>: -e und -en sind beide zulässig."},
+{id:"pd9", pre:"Es gibt hier sämtliche", stem:"alt", post:"Freunde sind eingeladen.", ans:["e","en"], opts:["e","en"], type:"doppelt", loc:"Plural · Akkusativ", trig:"sämtliche", cat:"pl-doppelt",
+ why:"Wieder <b>sämtliche</b>: -e und -en sind beide zulässig."},
+{id:"pd10", pre:"die Stimmen beider", stem:"klug", post:"Eltern", ans:["er","en"], opts:["er","en"], type:"doppelt", loc:"Plural · Genitiv", trig:"beider", cat:"pl-doppelt",
+ why:"Im Genitiv Plural schwankt es nach <b>beider</b>: stark -er oder schwach -en. Beide belegt, -n möglich."},
+{id:"pd11", pre:"trotz mancher", stem:"schön", post:"Tage konnten wir nicht raus.", ans:["er","en"], opts:["er","en"], type:"doppelt", loc:"Plural · Genitiv", trig:"mancher", cat:"pl-doppelt",
+ why:"Im Genitiv Plural schwankt es nach <b>mancher</b>: stark -er oder schwach -en. Beide belegt, -n möglich."},
+{id:"pd12", pre:"der Inhalt sämtlicher", stem:"alt", post:"Bücher", ans:["er","en"], opts:["er","en"], type:"doppelt", loc:"Plural · Genitiv", trig:"sämtlicher", cat:"pl-doppelt",
+ why:"Im Genitiv Plural schwankt es nach <b>sämtlicher</b>: stark -er oder schwach -en. Beide belegt, -n möglich."},
+/* ---- Singular ohne Artikel: stark ---- */
+{id:"ss1", pre:"Möchtest du etwas", stem:"Neu", post:"kaufen?", ans:["es"], opts:["es","en"], type:"stark", loc:"Singular · Neutrum (substantiviert)", trig:"etwas", cat:"sg-stark",
+ why:"Nach <b>etwas</b> wird das Adjektiv großgeschrieben und stark gebeugt: Neutrum = -es. „etwas Neues“. Kein -n. Nur im Dativ stünde -em."},
+{id:"ss2", pre:"Ich habe nichts", stem:"Interessant", post:"gehört.", ans:["es"], opts:["es","en"], type:"stark", loc:"Singular · Neutrum (substantiviert)", trig:"nichts", cat:"sg-stark",
+ why:"Nach <b>nichts</b> wird das Adjektiv großgeschrieben und stark gebeugt: Neutrum = -es. „nichts Interessantes“. Kein -n. Nur im Dativ stünde -em."},
+{id:"ss3", pre:"Er weiß viel", stem:"Schön", post:"über das Thema.", ans:["es"], opts:["es","en"], type:"stark", loc:"Singular · Neutrum (substantiviert)", trig:"viel", cat:"sg-stark",
+ why:"Nach <b>viel</b> wird das Adjektiv großgeschrieben und stark gebeugt: Neutrum = -es. „viel Schönes“. Kein -n. Nur im Dativ stünde -em."},
+{id:"ss4", pre:"Sie sagte wenig", stem:"Gut", post:"dazu.", ans:["es"], opts:["es","en"], type:"stark", loc:"Singular · Neutrum (substantiviert)", trig:"wenig", cat:"sg-stark",
+ why:"Nach <b>wenig</b> wird das Adjektiv großgeschrieben und stark gebeugt: Neutrum = -es. „wenig Gutes“. Kein -n. Nur im Dativ stünde -em."},
+{id:"ss5", pre:"Wir brauchen mehr", stem:"Wichtig", post:"im Team.", ans:["es"], opts:["es","en"], type:"stark", loc:"Singular · Neutrum (substantiviert)", trig:"mehr", cat:"sg-stark",
+ why:"Nach <b>mehr</b> wird das Adjektiv großgeschrieben und stark gebeugt: Neutrum = -es. „mehr Wichtiges“. Kein -n. Nur im Dativ stünde -em."},
+{id:"ss6", pre:"Du hast genug", stem:"Spannend", post:"getan.", ans:["es"], opts:["es","en"], type:"stark", loc:"Singular · Neutrum (substantiviert)", trig:"genug", cat:"sg-stark",
+ why:"Nach <b>genug</b> wird das Adjektiv großgeschrieben und stark gebeugt: Neutrum = -es. „genug Spannendes“. Kein -n. Nur im Dativ stünde -em."},
+{id:"ss7", pre:"Hier gibt es allerlei", stem:"Gut", post:"zu sehen.", ans:["es"], opts:["es","en"], type:"stark", loc:"Singular · Neutrum (substantiviert)", trig:"allerlei", cat:"sg-stark",
+ why:"Nach <b>allerlei</b> wird das Adjektiv großgeschrieben und stark gebeugt: Neutrum = -es. „allerlei Gutes“. Kein -n. Nur im Dativ stünde -em."},
+{id:"ss8", pre:"Sie träumt von etwas", stem:"Groß", post:".", ans:["em"], opts:["em","en"], type:"stark", loc:"Singular · Neutrum · Dativ (substantiviert)", trig:"etwas", cat:"sg-stark",
+ why:"Im Dativ nach <b>etwas</b> steht -em, nicht -en. „von etwas Großem“. Kein -n."},
+{id:"ss9", pre:"Ich brauche viel", stem:"kalt", post:"Wasser.", ans:["es"], opts:["es","en"], type:"stark", loc:"Singular · Neutrum · Akkusativ", trig:"viel", cat:"sg-stark",
+ why:"<b>viel</b> bleibt ungebeugt. Danach stark: Neutrum Akkusativ = -es. Kein -n."},
+{id:"ss10", pre:"Ich brauche viel", stem:"heiß", post:"Kaffee.", ans:["en"], opts:["e","en"], type:"stark", loc:"Singular · Maskulin · Akkusativ", trig:"viel", cat:"sg-stark",
+ why:"<b>viel</b> bleibt ungebeugt. Danach stark: Maskulin Akkusativ = -en. Mit -n (starkes Akkusativ Maskulin)."},
+{id:"ss11", pre:"Ich brauche wenig", stem:"frisch", post:"Luft.", ans:["e"], opts:["e","en"], type:"stark", loc:"Singular · Femininum · Akkusativ", trig:"wenig", cat:"sg-stark",
+ why:"<b>wenig</b> bleibt ungebeugt. Danach stark: Femininum Akkusativ = -e. Kein -n."},
+{id:"ss12", pre:"Viel", stem:"gut", post:"Wein tut gut.", ans:["er"], opts:["er","en"], type:"stark", loc:"Singular · Maskulin · Nominativ", trig:"viel", cat:"sg-stark",
+ why:"<b>viel</b> bleibt ungebeugt. Danach stark: Maskulin Nominativ = -er. Kein -n."},
+{id:"ss13", pre:"Ich brauche wenig", stem:"warm", post:"Wasser.", ans:["es"], opts:["es","en"], type:"stark", loc:"Singular · Neutrum · Akkusativ", trig:"wenig", cat:"sg-stark",
+ why:"<b>wenig</b> bleibt ungebeugt. Danach stark: Neutrum Akkusativ = -es. Kein -n."},
+{id:"ss14", pre:"Ich brauche viel", stem:"frisch", post:"Milch.", ans:["e"], opts:["e","en"], type:"stark", loc:"Singular · Femininum · Akkusativ", trig:"viel", cat:"sg-stark",
+ why:"<b>viel</b> bleibt ungebeugt. Danach stark: Femininum Akkusativ = -e. Kein -n."},
+{id:"ss15", pre:"Viel", stem:"stark", post:"Kaffee tut gut.", ans:["er"], opts:["er","en"], type:"stark", loc:"Singular · Maskulin · Nominativ", trig:"viel", cat:"sg-stark",
+ why:"<b>viel</b> bleibt ungebeugt. Danach stark: Maskulin Nominativ = -er. Kein -n."},
+{id:"ss16", pre:"", stem:"Kalt", post:"Bier schmeckt.", ans:["es"], opts:["es","en"], type:"stark", loc:"Singular · Neutrum · Nominativ", trig:"ohne Artikel", cat:"sg-stark",
+ why:"Ohne Artikelwort stark: Neutrum = -es. Kein -n."},
+{id:"ss17", pre:"", stem:"Heiß", post:"Kaffee schmeckt.", ans:["er"], opts:["er","en"], type:"stark", loc:"Singular · Maskulin · Nominativ", trig:"ohne Artikel", cat:"sg-stark",
+ why:"Ohne Artikelwort stark: Maskulin = -er. Kein -n."},
+{id:"ss18", pre:"", stem:"Frisch", post:"Milch ist gut.", ans:["e"], opts:["e","en"], type:"stark", loc:"Singular · Femininum · Nominativ", trig:"ohne Artikel", cat:"sg-stark",
+ why:"Ohne Artikelwort stark: Femininum = -e. Kein -n."},
+{id:"ss19", pre:"Ich mag", stem:"gut", post:"Wein.", ans:["en"], opts:["e","en"], type:"stark", loc:"Singular · Maskulin · Akkusativ", trig:"ohne Artikel", cat:"sg-stark",
+ why:"Ohne Artikelwort stark: Maskulin = -en. Mit -n (starkes Akkusativ Maskulin)."},
+{id:"ss20", pre:"Ich mag", stem:"frisch", post:"Brot.", ans:["es"], opts:["es","en"], type:"stark", loc:"Singular · Neutrum · Akkusativ", trig:"ohne Artikel", cat:"sg-stark",
+ why:"Ohne Artikelwort stark: Neutrum = -es. Kein -n."},
+{id:"ss21", pre:"", stem:"Rein", post:"Gold ist gut.", ans:["es"], opts:["es","en"], type:"stark", loc:"Singular · Neutrum · Nominativ", trig:"ohne Artikel", cat:"sg-stark",
+ why:"Ohne Artikelwort stark: Neutrum = -es. Kein -n."},
+{id:"ss22", pre:"Ich mag", stem:"sauber", post:"Wasser.", ans:["es"], opts:["es","en"], type:"stark", loc:"Singular · Neutrum · Akkusativ", trig:"ohne Artikel", cat:"sg-stark",
+ why:"Ohne Artikelwort stark: Neutrum = -es. Kein -n."},
+{id:"ss23", pre:"Ich koche mit", stem:"frisch", post:"Gemüse.", ans:["em"], opts:["em","en"], type:"stark", loc:"Singular · Neutrum · Dativ", trig:"ohne Artikel", cat:"sg-stark",
+ why:"Starkes Dativ Singular Neutrum = -em, nicht -en. Kein -n."},
+{id:"ss24", pre:"Sie wäscht mit", stem:"kalt", post:"Wasser.", ans:["em"], opts:["em","en"], type:"stark", loc:"Singular · Neutrum · Dativ", trig:"ohne Artikel", cat:"sg-stark",
+ why:"Starkes Dativ Singular Neutrum = -em, nicht -en. Kein -n."},
+{id:"ss25", pre:"Bei", stem:"stark", post:"Wind", ans:["em"], opts:["em","en"], type:"stark", loc:"Singular · Maskulin · Dativ", trig:"ohne Artikel", cat:"sg-stark",
+ why:"Starkes Dativ Singular Maskulin = -em, nicht -en. Kein -n."},
+{id:"ss26", pre:"Bei", stem:"schön", post:"Wetter", ans:["em"], opts:["em","en"], type:"stark", loc:"Singular · Neutrum · Dativ", trig:"ohne Artikel", cat:"sg-stark",
+ why:"Starkes Dativ Singular Neutrum = -em, nicht -en. Kein -n."},
+{id:"ss27", pre:"Mit", stem:"groß", post:"Interesse", ans:["em"], opts:["em","en"], type:"stark", loc:"Singular · Neutrum · Dativ", trig:"ohne Artikel", cat:"sg-stark",
+ why:"Starkes Dativ Singular Neutrum = -em, nicht -en. Kein -n."},
+{id:"ss28", pre:"aus", stem:"rein", post:"Gold", ans:["em"], opts:["em","en"], type:"stark", loc:"Singular · Neutrum · Dativ", trig:"ohne Artikel", cat:"sg-stark",
+ why:"Starkes Dativ Singular Neutrum = -em, nicht -en. Kein -n."},
+{id:"ss29", pre:"Evas", stem:"rot", post:"Mantel gefällt mir.", ans:["er"], opts:["er","en"], type:"stark", loc:"Singular · Maskulin · Nominativ", trig:"Genitiv voran (Evas)", cat:"sg-stark",
+ why:"Ein vorangestellter Genitiv (Evas) ersetzt den Artikel nicht. Adjektiv stark. Kein -n."},
+{id:"ss30", pre:"Peters", stem:"neu", post:"Auto gefällt mir.", ans:["es"], opts:["es","en"], type:"stark", loc:"Singular · Neutrum · Nominativ", trig:"Genitiv voran (Peters)", cat:"sg-stark",
+ why:"Ein vorangestellter Genitiv (Peters) ersetzt den Artikel nicht. Adjektiv stark. Kein -n."},
+{id:"ss31", pre:"Annas", stem:"klug", post:"Idee gefällt mir.", ans:["e"], opts:["e","en"], type:"stark", loc:"Singular · Femininum · Nominativ", trig:"Genitiv voran (Annas)", cat:"sg-stark",
+ why:"Ein vorangestellter Genitiv (Annas) ersetzt den Artikel nicht. Adjektiv stark. Kein -n."},
+{id:"ss32", pre:"Ich sehe Toms", stem:"alt", post:"Wagen.", ans:["en"], opts:["e","en"], type:"stark", loc:"Singular · Maskulin · Akkusativ", trig:"Genitiv voran (Toms)", cat:"sg-stark",
+ why:"Ein vorangestellter Genitiv (Toms) ersetzt den Artikel nicht. Adjektiv stark. Mit -n (Akkusativ Maskulin)."},
+{id:"ss33", pre:"Lisas", stem:"groß", post:"Haus gefällt mir.", ans:["es"], opts:["es","en"], type:"stark", loc:"Singular · Neutrum · Nominativ", trig:"Genitiv voran (Lisas)", cat:"sg-stark",
+ why:"Ein vorangestellter Genitiv (Lisas) ersetzt den Artikel nicht. Adjektiv stark. Kein -n."},
+{id:"ss34", pre:"Pauls", stem:"klein", post:"Garten gefällt mir.", ans:["er"], opts:["er","en"], type:"stark", loc:"Singular · Maskulin · Nominativ", trig:"Genitiv voran (Pauls)", cat:"sg-stark",
+ why:"Ein vorangestellter Genitiv (Pauls) ersetzt den Artikel nicht. Adjektiv stark. Kein -n."},
+{id:"ss35", pre:"Marias", stem:"schön", post:"Stimme gefällt mir.", ans:["e"], opts:["e","en"], type:"stark", loc:"Singular · Femininum · Nominativ", trig:"Genitiv voran (Marias)", cat:"sg-stark",
+ why:"Ein vorangestellter Genitiv (Marias) ersetzt den Artikel nicht. Adjektiv stark. Kein -n."},
+{id:"ss36", pre:"Du", stem:"faul", post:"Kerl!", ans:["er"], opts:["er","en"], type:"stark", loc:"Singular · Maskulin · Nominativ", trig:"Personalpronomen „du“", cat:"sg-stark",
+ why:"Nach dem Personalpronomen <b>du</b> ist das Adjektiv stark: Maskulin Nominativ = -er. Kein -n."},
+{id:"ss37", pre:"Du", stem:"lieb", post:"Kind!", ans:["es"], opts:["es","en"], type:"stark", loc:"Singular · Neutrum · Nominativ", trig:"Personalpronomen „du“", cat:"sg-stark",
+ why:"Nach dem Personalpronomen <b>du</b> ist das Adjektiv stark: Neutrum Nominativ = -es. Kein -n."},
+{id:"ss38", pre:"Ich", stem:"alt", post:"Mann!", ans:["er"], opts:["er","en"], type:"stark", loc:"Singular · Maskulin · Nominativ", trig:"Personalpronomen „ich“", cat:"sg-stark",
+ why:"Nach dem Personalpronomen <b>ich</b> ist das Adjektiv stark: Maskulin Nominativ = -er. Kein -n."},
+{id:"ss39", pre:"Du", stem:"treu", post:"Seele!", ans:["e"], opts:["e","en"], type:"stark", loc:"Singular · Femininum · Nominativ", trig:"Personalpronomen „du“", cat:"sg-stark",
+ why:"Nach dem Personalpronomen <b>du</b> ist das Adjektiv stark: Femininum Nominativ = -e. Kein -n."},
+{id:"ss40", pre:"Du", stem:"klug", post:"Mädchen!", ans:["es"], opts:["es","en"], type:"stark", loc:"Singular · Neutrum · Nominativ", trig:"Personalpronomen „du“", cat:"sg-stark",
+ why:"Nach dem Personalpronomen <b>du</b> ist das Adjektiv stark: Neutrum Nominativ = -es. Kein -n."},
+{id:"ss41", pre:"trotz", stem:"schlecht", post:"Wetters", ans:["en"], opts:["es","en"], type:"stark", loc:"Singular · Neutrum · Genitiv", trig:"ohne Artikel", cat:"sg-stark",
+ why:"Genitiv Neutrum ohne Artikel = -en, weil das Nomen schon -s zeigt. „trotz schlechten Wetters“. Mit -n."},
+{id:"ss42", pre:"wegen", stem:"stark", post:"Regens", ans:["en"], opts:["es","en"], type:"stark", loc:"Singular · Maskulin · Genitiv", trig:"ohne Artikel", cat:"sg-stark",
+ why:"Genitiv Maskulin ohne Artikel = -en, weil das Nomen schon -s zeigt. „wegen starken Regens“. Mit -n."},
+{id:"ss43", pre:"während", stem:"lang", post:"Tages", ans:["en"], opts:["es","en"], type:"stark", loc:"Singular · Maskulin · Genitiv", trig:"ohne Artikel", cat:"sg-stark",
+ why:"Genitiv Maskulin ohne Artikel = -en, weil das Nomen schon -s zeigt. „während langen Tages“. Mit -n."},
+{id:"ss44", pre:"ein Glas", stem:"kühl", post:"Weins", ans:["en"], opts:["es","en"], type:"stark", loc:"Singular · Maskulin · Genitiv", trig:"ohne Artikel", cat:"sg-stark",
+ why:"Genitiv Maskulin ohne Artikel = -en, weil das Nomen schon -s zeigt. „ein Glas kühlen Weins“. Mit -n."},
+{id:"ss45", pre:"der Duft", stem:"frisch", post:"Kaffees", ans:["en"], opts:["es","en"], type:"stark", loc:"Singular · Maskulin · Genitiv", trig:"ohne Artikel", cat:"sg-stark",
+ why:"Genitiv Maskulin ohne Artikel = -en, weil das Nomen schon -s zeigt. „der Duft frischen Kaffees“. Mit -n."},
+{id:"ss46", pre:"infolge", stem:"schwer", post:"Sturms", ans:["en"], opts:["es","en"], type:"stark", loc:"Singular · Maskulin · Genitiv", trig:"ohne Artikel", cat:"sg-stark",
+ why:"Genitiv Maskulin ohne Artikel = -en, weil das Nomen schon -s zeigt. „infolge schweren Sturms“. Mit -n."},
+{id:"ss47", pre:"trotz", stem:"dicht", post:"Nebels", ans:["en"], opts:["es","en"], type:"stark", loc:"Singular · Maskulin · Genitiv", trig:"ohne Artikel", cat:"sg-stark",
+ why:"Genitiv Maskulin ohne Artikel = -en, weil das Nomen schon -s zeigt. „trotz dichten Nebels“. Mit -n."},
+{id:"ss48", pre:"wegen", stem:"heftig", post:"Windes", ans:["en"], opts:["es","en"], type:"stark", loc:"Singular · Maskulin · Genitiv", trig:"ohne Artikel", cat:"sg-stark",
+ why:"Genitiv Maskulin ohne Artikel = -en, weil das Nomen schon -s zeigt. „wegen heftigen Windes“. Mit -n."},
+{id:"ss49", pre:"die Farbe", stem:"hell", post:"Holzes", ans:["en"], opts:["es","en"], type:"stark", loc:"Singular · Neutrum · Genitiv", trig:"ohne Artikel", cat:"sg-stark",
+ why:"Genitiv Neutrum ohne Artikel = -en, weil das Nomen schon -s zeigt. „die Farbe hellen Holzes“. Mit -n."},
+{id:"ss50", pre:"ein Stück", stem:"frisch", post:"Brotes", ans:["en"], opts:["es","en"], type:"stark", loc:"Singular · Neutrum · Genitiv", trig:"ohne Artikel", cat:"sg-stark",
+ why:"Genitiv Neutrum ohne Artikel = -en, weil das Nomen schon -s zeigt. „ein Stück frischen Brotes“. Mit -n."},
+/* ---- Singular nach ein-/mein-/kein-: gemischt ---- */
+{id:"sm1", pre:"Ein", stem:"alt", post:"Freund schreibt mir.", ans:["er"], opts:["er","en"], type:"gemischt", loc:"Singular · Maskulin · Nominativ", trig:"ein", cat:"sg-gemischt",
+ why:"Nach <b>ein</b> zeigt das Adjektiv das Geschlecht: Maskulin Nominativ = -er. Kein -n."},
+{id:"sm2", pre:"Kein", stem:"klein", post:"Hund bellt laut.", ans:["er"], opts:["er","en"], type:"gemischt", loc:"Singular · Maskulin · Nominativ", trig:"kein", cat:"sg-gemischt",
+ why:"Nach <b>kein</b> zeigt das Adjektiv das Geschlecht: Maskulin Nominativ = -er. Kein -n."},
+{id:"sm3", pre:"Mein", stem:"groß", post:"Tisch steht im Zimmer.", ans:["er"], opts:["er","en"], type:"gemischt", loc:"Singular · Maskulin · Nominativ", trig:"mein", cat:"sg-gemischt",
+ why:"Nach <b>mein</b> zeigt das Adjektiv das Geschlecht: Maskulin Nominativ = -er. Kein -n."},
+{id:"sm4", pre:"Dein", stem:"alt", post:"Freund schreibt mir.", ans:["er"], opts:["er","en"], type:"gemischt", loc:"Singular · Maskulin · Nominativ", trig:"dein", cat:"sg-gemischt",
+ why:"Nach <b>dein</b> zeigt das Adjektiv das Geschlecht: Maskulin Nominativ = -er. Kein -n."},
+{id:"sm5", pre:"Sein", stem:"klein", post:"Hund bellt laut.", ans:["er"], opts:["er","en"], type:"gemischt", loc:"Singular · Maskulin · Nominativ", trig:"sein", cat:"sg-gemischt",
+ why:"Nach <b>sein</b> zeigt das Adjektiv das Geschlecht: Maskulin Nominativ = -er. Kein -n."},
+{id:"sm6", pre:"Ihr", stem:"groß", post:"Tisch steht im Zimmer.", ans:["er"], opts:["er","en"], type:"gemischt", loc:"Singular · Maskulin · Nominativ", trig:"ihr", cat:"sg-gemischt",
+ why:"Nach <b>ihr</b> zeigt das Adjektiv das Geschlecht: Maskulin Nominativ = -er. Kein -n."},
+{id:"sm7", pre:"Unser", stem:"alt", post:"Freund schreibt mir.", ans:["er"], opts:["er","en"], type:"gemischt", loc:"Singular · Maskulin · Nominativ", trig:"unser", cat:"sg-gemischt",
+ why:"Nach <b>unser</b> zeigt das Adjektiv das Geschlecht: Maskulin Nominativ = -er. Kein -n."},
+{id:"sm8", pre:"Euer", stem:"klein", post:"Hund bellt laut.", ans:["er"], opts:["er","en"], type:"gemischt", loc:"Singular · Maskulin · Nominativ", trig:"euer", cat:"sg-gemischt",
+ why:"Nach <b>euer</b> zeigt das Adjektiv das Geschlecht: Maskulin Nominativ = -er. Kein -n."},
+{id:"sm9", pre:"Irgendein", stem:"groß", post:"Tisch steht im Zimmer.", ans:["er"], opts:["er","en"], type:"gemischt", loc:"Singular · Maskulin · Nominativ", trig:"irgendein", cat:"sg-gemischt",
+ why:"Nach <b>irgendein</b> zeigt das Adjektiv das Geschlecht: Maskulin Nominativ = -er. Kein -n."},
+{id:"sm10", pre:"Ein", stem:"klein", post:"Kind lacht.", ans:["es"], opts:["es","en"], type:"gemischt", loc:"Singular · Neutrum · Nominativ", trig:"ein", cat:"sg-gemischt",
+ why:"Nach <b>ein</b> Neutrum Nominativ = -es. Kein -n."},
+{id:"sm11", pre:"Kein", stem:"neu", post:"Auto steht da.", ans:["es"], opts:["es","en"], type:"gemischt", loc:"Singular · Neutrum · Nominativ", trig:"kein", cat:"sg-gemischt",
+ why:"Nach <b>kein</b> Neutrum Nominativ = -es. Kein -n."},
+{id:"sm12", pre:"Mein", stem:"alt", post:"Haus steht im Dorf.", ans:["es"], opts:["es","en"], type:"gemischt", loc:"Singular · Neutrum · Nominativ", trig:"mein", cat:"sg-gemischt",
+ why:"Nach <b>mein</b> Neutrum Nominativ = -es. Kein -n."},
+{id:"sm13", pre:"Dein", stem:"klein", post:"Kind lacht.", ans:["es"], opts:["es","en"], type:"gemischt", loc:"Singular · Neutrum · Nominativ", trig:"dein", cat:"sg-gemischt",
+ why:"Nach <b>dein</b> Neutrum Nominativ = -es. Kein -n."},
+{id:"sm14", pre:"Sein", stem:"neu", post:"Auto steht da.", ans:["es"], opts:["es","en"], type:"gemischt", loc:"Singular · Neutrum · Nominativ", trig:"sein", cat:"sg-gemischt",
+ why:"Nach <b>sein</b> Neutrum Nominativ = -es. Kein -n."},
+{id:"sm15", pre:"Ihr", stem:"alt", post:"Haus steht im Dorf.", ans:["es"], opts:["es","en"], type:"gemischt", loc:"Singular · Neutrum · Nominativ", trig:"ihr", cat:"sg-gemischt",
+ why:"Nach <b>ihr</b> Neutrum Nominativ = -es. Kein -n."},
+{id:"sm16", pre:"Unser", stem:"klein", post:"Kind lacht.", ans:["es"], opts:["es","en"], type:"gemischt", loc:"Singular · Neutrum · Nominativ", trig:"unser", cat:"sg-gemischt",
+ why:"Nach <b>unser</b> Neutrum Nominativ = -es. Kein -n."},
+{id:"sm17", pre:"Euer", stem:"neu", post:"Auto steht da.", ans:["es"], opts:["es","en"], type:"gemischt", loc:"Singular · Neutrum · Nominativ", trig:"euer", cat:"sg-gemischt",
+ why:"Nach <b>euer</b> Neutrum Nominativ = -es. Kein -n."},
+{id:"sm18", pre:"Irgendein", stem:"alt", post:"Haus steht im Dorf.", ans:["es"], opts:["es","en"], type:"gemischt", loc:"Singular · Neutrum · Nominativ", trig:"irgendein", cat:"sg-gemischt",
+ why:"Nach <b>irgendein</b> Neutrum Nominativ = -es. Kein -n."},
+{id:"sm19", pre:"Ich habe einen", stem:"alt", post:"Freund getroffen.", ans:["en"], opts:["e","en"], type:"gemischt", loc:"Singular · Maskulin · Akkusativ", trig:"einen", cat:"sg-gemischt",
+ why:"Akkusativ Maskulin nach einem ein-Wort = -en. Mit -n."},
+{id:"sm20", pre:"Sie kennt keinen", stem:"klein", post:"Hund.", ans:["en"], opts:["e","en"], type:"gemischt", loc:"Singular · Maskulin · Akkusativ", trig:"keinen", cat:"sg-gemischt",
+ why:"Akkusativ Maskulin nach einem ein-Wort = -en. Mit -n."},
+{id:"sm21", pre:"Er hat meinen", stem:"groß", post:"Tisch gekauft.", ans:["en"], opts:["e","en"], type:"gemischt", loc:"Singular · Maskulin · Akkusativ", trig:"meinen", cat:"sg-gemischt",
+ why:"Akkusativ Maskulin nach einem ein-Wort = -en. Mit -n."},
+{id:"sm22", pre:"Ich habe deinen", stem:"alt", post:"Freund getroffen.", ans:["en"], opts:["e","en"], type:"gemischt", loc:"Singular · Maskulin · Akkusativ", trig:"deinen", cat:"sg-gemischt",
+ why:"Akkusativ Maskulin nach einem ein-Wort = -en. Mit -n."},
+{id:"sm23", pre:"Sie kennt seinen", stem:"klein", post:"Hund.", ans:["en"], opts:["e","en"], type:"gemischt", loc:"Singular · Maskulin · Akkusativ", trig:"seinen", cat:"sg-gemischt",
+ why:"Akkusativ Maskulin nach einem ein-Wort = -en. Mit -n."},
+{id:"sm24", pre:"Er hat ihren", stem:"groß", post:"Tisch gekauft.", ans:["en"], opts:["e","en"], type:"gemischt", loc:"Singular · Maskulin · Akkusativ", trig:"ihren", cat:"sg-gemischt",
+ why:"Akkusativ Maskulin nach einem ein-Wort = -en. Mit -n."},
+{id:"sm25", pre:"Ich habe unseren", stem:"alt", post:"Freund getroffen.", ans:["en"], opts:["e","en"], type:"gemischt", loc:"Singular · Maskulin · Akkusativ", trig:"unseren", cat:"sg-gemischt",
+ why:"Akkusativ Maskulin nach einem ein-Wort = -en. Mit -n."},
+{id:"sm26", pre:"Sie kennt irgendeinen", stem:"klein", post:"Hund.", ans:["en"], opts:["e","en"], type:"gemischt", loc:"Singular · Maskulin · Akkusativ", trig:"irgendeinen", cat:"sg-gemischt",
+ why:"Akkusativ Maskulin nach einem ein-Wort = -en. Mit -n."},
+{id:"sm27", pre:"Ich habe ein", stem:"klein", post:"Kind gesehen.", ans:["es"], opts:["es","en"], type:"gemischt", loc:"Singular · Neutrum · Akkusativ", trig:"ein", cat:"sg-gemischt",
+ why:"Nach <b>ein</b> Neutrum Akkusativ = -es. Kein -n."},
+{id:"sm28", pre:"Sie kaufte kein", stem:"neu", post:"Auto.", ans:["es"], opts:["es","en"], type:"gemischt", loc:"Singular · Neutrum · Akkusativ", trig:"kein", cat:"sg-gemischt",
+ why:"Nach <b>kein</b> Neutrum Akkusativ = -es. Kein -n."},
+{id:"sm29", pre:"Er besitzt mein", stem:"alt", post:"Haus.", ans:["es"], opts:["es","en"], type:"gemischt", loc:"Singular · Neutrum · Akkusativ", trig:"mein", cat:"sg-gemischt",
+ why:"Nach <b>mein</b> Neutrum Akkusativ = -es. Kein -n."},
+{id:"sm30", pre:"Ich habe sein", stem:"klein", post:"Kind gesehen.", ans:["es"], opts:["es","en"], type:"gemischt", loc:"Singular · Neutrum · Akkusativ", trig:"sein", cat:"sg-gemischt",
+ why:"Nach <b>sein</b> Neutrum Akkusativ = -es. Kein -n."},
+{id:"sm31", pre:"Sie kaufte irgendein", stem:"neu", post:"Auto.", ans:["es"], opts:["es","en"], type:"gemischt", loc:"Singular · Neutrum · Akkusativ", trig:"irgendein", cat:"sg-gemischt",
+ why:"Nach <b>irgendein</b> Neutrum Akkusativ = -es. Kein -n."},
+{id:"sm32", pre:"Eine", stem:"nett", post:"Frau wohnt nebenan.", ans:["e"], opts:["e","en"], type:"gemischt", loc:"Singular · Femininum · Nominativ", trig:"eine", cat:"sg-gemischt",
+ why:"Nach <b>eine</b> Femininum Nominativ = -e. Kein -n."},
+{id:"sm33", pre:"Keine", stem:"klug", post:"Idee hat sich durchgesetzt.", ans:["e"], opts:["e","en"], type:"gemischt", loc:"Singular · Femininum · Nominativ", trig:"keine", cat:"sg-gemischt",
+ why:"Nach <b>keine</b> Femininum Nominativ = -e. Kein -n."},
+{id:"sm34", pre:"Meine", stem:"alt", post:"Geschichte wird erzählt.", ans:["e"], opts:["e","en"], type:"gemischt", loc:"Singular · Femininum · Nominativ", trig:"meine", cat:"sg-gemischt",
+ why:"Nach <b>meine</b> Femininum Nominativ = -e. Kein -n."},
+{id:"sm35", pre:"Deine", stem:"nett", post:"Frau wohnt nebenan.", ans:["e"], opts:["e","en"], type:"gemischt", loc:"Singular · Femininum · Nominativ", trig:"deine", cat:"sg-gemischt",
+ why:"Nach <b>deine</b> Femininum Nominativ = -e. Kein -n."},
+{id:"sm36", pre:"Ihre", stem:"klug", post:"Idee hat sich durchgesetzt.", ans:["e"], opts:["e","en"], type:"gemischt", loc:"Singular · Femininum · Nominativ", trig:"ihre", cat:"sg-gemischt",
+ why:"Nach <b>ihre</b> Femininum Nominativ = -e. Kein -n."},
+{id:"sm37", pre:"Seine", stem:"alt", post:"Geschichte wird erzählt.", ans:["e"], opts:["e","en"], type:"gemischt", loc:"Singular · Femininum · Nominativ", trig:"seine", cat:"sg-gemischt",
+ why:"Nach <b>seine</b> Femininum Nominativ = -e. Kein -n."},
+{id:"sm38", pre:"Ich rede mit einem", stem:"alt", post:"Freund.", ans:["en"], opts:["er","en"], type:"gemischt", loc:"Singular · Maskulin · Dativ", trig:"einem", cat:"sg-gemischt",
+ why:"Dativ nach einem ein-Wort = -en (alle Genera). Mit -n."},
+{id:"sm39", pre:"Wir wohnen in einem", stem:"klein", post:"Dorf.", ans:["en"], opts:["es","en"], type:"gemischt", loc:"Singular · Neutrum · Dativ", trig:"einem", cat:"sg-gemischt",
+ why:"Dativ nach einem ein-Wort = -en (alle Genera). Mit -n."},
+{id:"sm40", pre:"Mit einer", stem:"klug", post:"Idee gewann sie.", ans:["en"], opts:["e","en"], type:"gemischt", loc:"Singular · Femininum · Dativ", trig:"einer", cat:"sg-gemischt",
+ why:"Dativ nach einem ein-Wort = -en (alle Genera). Mit -n."},
+{id:"sm41", pre:"Bei meinem", stem:"alt", post:"Computer ist alles langsam.", ans:["en"], opts:["er","en"], type:"gemischt", loc:"Singular · Maskulin · Dativ", trig:"meinem", cat:"sg-gemischt",
+ why:"Dativ nach einem ein-Wort = -en (alle Genera). Mit -n."},
+{id:"sm42", pre:"Sie kam mit keiner", stem:"klar", post:"Antwort zurück.", ans:["en"], opts:["e","en"], type:"gemischt", loc:"Singular · Femininum · Dativ", trig:"keiner", cat:"sg-gemischt",
+ why:"Dativ nach einem ein-Wort = -en (alle Genera). Mit -n."},
+{id:"sm43", pre:"In seinem", stem:"neu", post:"Auto fährt er gerne.", ans:["en"], opts:["es","en"], type:"gemischt", loc:"Singular · Neutrum · Dativ", trig:"seinem", cat:"sg-gemischt",
+ why:"Dativ nach einem ein-Wort = -en (alle Genera). Mit -n."},
+{id:"sm44", pre:"Bei meiner", stem:"alt", post:"Tante wohnt sie jetzt.", ans:["en"], opts:["e","en"], type:"gemischt", loc:"Singular · Femininum · Dativ", trig:"meiner", cat:"sg-gemischt",
+ why:"Dativ nach einem ein-Wort = -en (alle Genera). Mit -n."},
+{id:"sm45", pre:"Aus keinem", stem:"wichtig", post:"Grund schweigt sie.", ans:["en"], opts:["er","en"], type:"gemischt", loc:"Singular · Maskulin · Dativ", trig:"keinem", cat:"sg-gemischt",
+ why:"Dativ nach einem ein-Wort = -en (alle Genera). Mit -n."},
+{id:"sm46", pre:"wegen eines", stem:"wichtig", post:"Grundes", ans:["en"], opts:["es","en"], type:"gemischt", loc:"Singular · Maskulin · Genitiv", trig:"eines", cat:"sg-gemischt",
+ why:"Genitiv nach einem ein-Wort = -en. Mit -n."},
+{id:"sm47", pre:"trotz keines", stem:"klar", post:"Plans", ans:["en"], opts:["es","en"], type:"gemischt", loc:"Singular · Maskulin · Genitiv", trig:"keines", cat:"sg-gemischt",
+ why:"Genitiv nach einem ein-Wort = -en. Mit -n."},
+{id:"sm48", pre:"während meines", stem:"lang", post:"Lebens", ans:["en"], opts:["es","en"], type:"gemischt", loc:"Singular · Neutrum · Genitiv", trig:"meines", cat:"sg-gemischt",
+ why:"Genitiv nach einem ein-Wort = -en. Mit -n."},
+{id:"sm49", pre:"infolge eines", stem:"klein", post:"Fehlers", ans:["en"], opts:["es","en"], type:"gemischt", loc:"Singular · Maskulin · Genitiv", trig:"eines", cat:"sg-gemischt",
+ why:"Genitiv nach einem ein-Wort = -en. Mit -n."},
+{id:"sm50", pre:"wegen einer", stem:"schwer", post:"Krankheit", ans:["en"], opts:["er","en"], type:"gemischt", loc:"Singular · Femininum · Genitiv", trig:"einer", cat:"sg-gemischt",
+ why:"Genitiv nach einem ein-Wort = -en. Mit -n."},
+{id:"sm51", pre:"trotz keiner", stem:"klar", post:"Antwort", ans:["en"], opts:["er","en"], type:"gemischt", loc:"Singular · Femininum · Genitiv", trig:"keiner", cat:"sg-gemischt",
+ why:"Genitiv nach einem ein-Wort = -en. Mit -n."},
+/* ---- Singular nach der-Wort: schwach ---- */
+{id:"sw1", pre:"Der", stem:"alt", post:"Freund schreibt mir.", ans:["e"], opts:["e","en"], type:"schwach", loc:"Singular · Maskulin · Nominativ", trig:"der", cat:"sg-schwach",
+ why:"Nach dem der-Wort <b>der</b> schwach: Maskulin Nominativ = -e. Kein -n."},
+{id:"sw2", pre:"Dieser", stem:"klein", post:"Hund bellt laut.", ans:["e"], opts:["e","en"], type:"schwach", loc:"Singular · Maskulin · Nominativ", trig:"dieser", cat:"sg-schwach",
+ why:"Nach dem der-Wort <b>dieser</b> schwach: Maskulin Nominativ = -e. Kein -n."},
+{id:"sw3", pre:"Jener", stem:"groß", post:"Tisch steht im Zimmer.", ans:["e"], opts:["e","en"], type:"schwach", loc:"Singular · Maskulin · Nominativ", trig:"jener", cat:"sg-schwach",
+ why:"Nach dem der-Wort <b>jener</b> schwach: Maskulin Nominativ = -e. Kein -n."},
+{id:"sw4", pre:"Jeder", stem:"alt", post:"Freund schreibt mir.", ans:["e"], opts:["e","en"], type:"schwach", loc:"Singular · Maskulin · Nominativ", trig:"jeder", cat:"sg-schwach",
+ why:"Nach dem der-Wort <b>jeder</b> schwach: Maskulin Nominativ = -e. Kein -n."},
+{id:"sw5", pre:"Mancher", stem:"klein", post:"Hund bellt laut.", ans:["e"], opts:["e","en"], type:"schwach", loc:"Singular · Maskulin · Nominativ", trig:"mancher", cat:"sg-schwach",
+ why:"Nach dem der-Wort <b>mancher</b> schwach: Maskulin Nominativ = -e. Kein -n. Das ungebeugte „manch“ wäre stark."},
+{id:"sw6", pre:"Welcher", stem:"groß", post:"Tisch steht im Zimmer?", ans:["e"], opts:["e","en"], type:"schwach", loc:"Singular · Maskulin · Nominativ", trig:"welcher", cat:"sg-schwach",
+ why:"Nach dem der-Wort <b>welcher</b> schwach: Maskulin Nominativ = -e. Kein -n. Das ungebeugte „welch“ wäre stark."},
+{id:"sw7", pre:"Solcher", stem:"alt", post:"Freund schreibt mir.", ans:["e"], opts:["e","en"], type:"schwach", loc:"Singular · Maskulin · Nominativ", trig:"solcher", cat:"sg-schwach",
+ why:"Nach dem der-Wort <b>solcher</b> schwach: Maskulin Nominativ = -e. Kein -n. Das ungebeugte „solch“ wäre stark."},
+{id:"sw8", pre:"Derselbe", stem:"klein", post:"Hund bellt laut.", ans:["e"], opts:["e","en"], type:"schwach", loc:"Singular · Maskulin · Nominativ", trig:"derselbe", cat:"sg-schwach",
+ why:"Nach dem der-Wort <b>derselbe</b> schwach: Maskulin Nominativ = -e. Kein -n."},
+{id:"sw9", pre:"Das", stem:"klein", post:"Kind lacht.", ans:["e"], opts:["e","en"], type:"schwach", loc:"Singular · Neutrum · Nominativ", trig:"das", cat:"sg-schwach",
+ why:"Nach <b>das</b> schwach: Neutrum Nominativ = -e. Kein -n."},
+{id:"sw10", pre:"Dieses", stem:"neu", post:"Auto steht da.", ans:["e"], opts:["e","en"], type:"schwach", loc:"Singular · Neutrum · Nominativ", trig:"dieses", cat:"sg-schwach",
+ why:"Nach <b>dieses</b> schwach: Neutrum Nominativ = -e. Kein -n."},
+{id:"sw11", pre:"Jedes", stem:"alt", post:"Haus steht im Dorf.", ans:["e"], opts:["e","en"], type:"schwach", loc:"Singular · Neutrum · Nominativ", trig:"jedes", cat:"sg-schwach",
+ why:"Nach <b>jedes</b> schwach: Neutrum Nominativ = -e. Kein -n."},
+{id:"sw12", pre:"Die", stem:"nett", post:"Frau wohnt nebenan.", ans:["e"], opts:["e","en"], type:"schwach", loc:"Singular · Femininum · Nominativ", trig:"die", cat:"sg-schwach",
+ why:"Nach <b>die</b> schwach: Femininum Nominativ = -e. Kein -n."},
+{id:"sw13", pre:"Diese", stem:"klug", post:"Idee hat sich durchgesetzt.", ans:["e"], opts:["e","en"], type:"schwach", loc:"Singular · Femininum · Nominativ", trig:"diese", cat:"sg-schwach",
+ why:"Nach <b>diese</b> schwach: Femininum Nominativ = -e. Kein -n."},
+{id:"sw14", pre:"Jede", stem:"alt", post:"Geschichte wird erzählt.", ans:["e"], opts:["e","en"], type:"schwach", loc:"Singular · Femininum · Nominativ", trig:"jede", cat:"sg-schwach",
+ why:"Nach <b>jede</b> schwach: Femininum Nominativ = -e. Kein -n."},
+{id:"sw15", pre:"Welche", stem:"nett", post:"Frau wohnt nebenan?", ans:["e"], opts:["e","en"], type:"schwach", loc:"Singular · Femininum · Nominativ", trig:"welche", cat:"sg-schwach",
+ why:"Nach <b>welche</b> schwach: Femininum Nominativ = -e. Kein -n."},
+{id:"sw16", pre:"Ich sehe den", stem:"alt", post:"Freund.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Singular · Maskulin · Akkusativ", trig:"den", cat:"sg-schwach",
+ why:"Akkusativ Maskulin nach dem der-Wort <b>den</b> = -en. Mit -n."},
+{id:"sw17", pre:"Sie kennt diesen", stem:"klein", post:"Hund.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Singular · Maskulin · Akkusativ", trig:"diesen", cat:"sg-schwach",
+ why:"Akkusativ Maskulin nach dem der-Wort <b>diesen</b> = -en. Mit -n."},
+{id:"sw18", pre:"Welchen", stem:"groß", post:"Tisch heute?", ans:["en"], opts:["e","en"], type:"schwach", loc:"Singular · Maskulin · Akkusativ", trig:"welchen", cat:"sg-schwach",
+ why:"Akkusativ Maskulin nach dem der-Wort <b>welchen</b> = -en. Mit -n."},
+{id:"sw19", pre:"Ich sehe denselben", stem:"alt", post:"Freund.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Singular · Maskulin · Akkusativ", trig:"denselben", cat:"sg-schwach",
+ why:"Akkusativ Maskulin nach dem der-Wort <b>denselben</b> = -en. Mit -n."},
+{id:"sw20", pre:"Sie kennt jeden", stem:"klein", post:"Hund.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Singular · Maskulin · Akkusativ", trig:"jeden", cat:"sg-schwach",
+ why:"Akkusativ Maskulin nach dem der-Wort <b>jeden</b> = -en. Mit -n."},
+{id:"sw21", pre:"Ich rede mit dem", stem:"alt", post:"Freund.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Singular · Maskulin · Dativ", trig:"dem", cat:"sg-schwach",
+ why:"Dativ nach dem der-Wort <b>dem</b> = -en. Mit -n."},
+{id:"sw22", pre:"Sie kam aus diesem", stem:"klein", post:"Dorf.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Singular · Neutrum · Dativ", trig:"diesem", cat:"sg-schwach",
+ why:"Dativ nach dem der-Wort <b>diesem</b> = -en. Mit -n."},
+{id:"sw23", pre:"Mit der", stem:"klug", post:"Idee gewann sie.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Singular · Femininum · Dativ", trig:"der", cat:"sg-schwach",
+ why:"Dativ nach dem der-Wort <b>der</b> = -en. Mit -n."},
+{id:"sw24", pre:"Bei jedem", stem:"lang", post:"Tag freut sie sich.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Singular · Maskulin · Dativ", trig:"jedem", cat:"sg-schwach",
+ why:"Dativ nach dem der-Wort <b>jedem</b> = -en. Mit -n."},
+{id:"sw25", pre:"Auf dieser", stem:"alt", post:"Karte ist alles drauf.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Singular · Femininum · Dativ", trig:"dieser", cat:"sg-schwach",
+ why:"Dativ nach dem der-Wort <b>dieser</b> = -en. Mit -n."},
+{id:"sw26", pre:"In demselben", stem:"klein", post:"Zimmer schlafen wir.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Singular · Neutrum · Dativ", trig:"demselben", cat:"sg-schwach",
+ why:"Dativ nach dem der-Wort <b>demselben</b> = -en. Mit -n."},
+{id:"sw27", pre:"das Haus des", stem:"alt", post:"Mannes", ans:["en"], opts:["e","en"], type:"schwach", loc:"Singular · Maskulin · Genitiv", trig:"des", cat:"sg-schwach",
+ why:"Genitiv nach dem der-Wort <b>des</b> = -en. Mit -n."},
+{id:"sw28", pre:"die Stimme dieser", stem:"klug", post:"Frau", ans:["en"], opts:["e","en"], type:"schwach", loc:"Singular · Femininum · Genitiv", trig:"dieser", cat:"sg-schwach",
+ why:"Genitiv nach dem der-Wort <b>dieser</b> = -en. Mit -n."},
+{id:"sw29", pre:"die Augen jenes", stem:"klein", post:"Kindes", ans:["en"], opts:["e","en"], type:"schwach", loc:"Singular · Neutrum · Genitiv", trig:"jenes", cat:"sg-schwach",
+ why:"Genitiv nach dem der-Wort <b>jenes</b> = -en. Mit -n."},
+/* ---- Basisfaelle ---- */
+{id:"b1", pre:"Der", stem:"hoh", post:"Baum ist alt.", ans:["e"], opts:["e","en"], type:"schwach", loc:"Singular · Maskulin · Nominativ", trig:"der", cat:"basis", base:true,
+ why:"Standardfall: nach <b>der</b> schwach, Maskulin Nominativ = -e. „der hohe Baum“. Kein -n."},
+{id:"b2", pre:"Die", stem:"klein", post:"Kinder schlafen.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Plural · Nominativ", trig:"die", cat:"basis", base:true,
+ why:"Standardfall Plural: nach <b>die</b> überall -en. „die kleinen Kinder“. Mit -n."},
+{id:"b3", pre:"Ich gebe dem", stem:"alt", post:"Mann das Buch.", ans:["en"], opts:["e","en"], type:"schwach", loc:"Singular · Maskulin · Dativ", trig:"dem", cat:"basis", base:true,
+ why:"Dativ nach <b>dem</b> = -en. „dem alten Mann“. Mit -n."},
+{id:"b4", pre:"Das", stem:"schön", post:"Kind lacht.", ans:["e"], opts:["e","en"], type:"schwach", loc:"Singular · Neutrum · Nominativ", trig:"das", cat:"basis", base:true,
+ why:"Standardfall: nach <b>das</b> Neutrum Nominativ = -e. „das schöne Kind“. Kein -n."}
+];
+
+/* ============================================================
+   Spaced Repetition: Boxen, Status, Speicherung
+   ============================================================ */
+const MASTER_BOX = 5;
+const BOX_WEIGHT = [1.0, 0.7, 0.5, 0.35, 0.25, 0.15];
+const DUE_GAP    = [0, 1, 3, 8, 20, 60];
+const SLOW_MS    = 9000;
+const STORAGE_KEY = "adj-endungen-progress-v2";
+
+let state = {};
+let step = 0;
+let lastId = null;
+let focusMode = false;
+let focusCat = null;
+let streak = 0;
+let best = 0;
+let recordToBeat = 0;
+let cur = null;
+let locked = false;
+let awaiting = false;
+let canSpeak = false;
+let soundOn = false;
+let pendingAdvance = false;
+
+function st(id){
+  if(!state[id]) state[id] = {b:0, c:0, x:0, slow:0, due:0};
+  return state[id];
+}
+function ensureState(){
+  state = {};
+  for(const d of DATA) st(d.id);
+  step = 0; streak = 0; best = 0; recordToBeat = 0;
+  focusMode = false; focusCat = null;
+}
+function save(){
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      state, step, best, recordToBeat, soundOn, focusCat, focusMode
+    }));
+  } catch(e){}
+  return Promise.resolve();
+}
+async function load(){
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const o = JSON.parse(raw);
+      state = o.state || {};
+      step = o.step || 0;
+      best = o.best || 0;
+      recordToBeat = o.recordToBeat || 0;
+      soundOn = !!o.soundOn;
+      focusCat = o.focusCat || null;
+      focusMode = !!o.focusMode;
+    }
+  } catch(e){}
+  for(const d of DATA) st(d.id);
+}
+
+const byId = id => DATA.find(d=>d.id===id);
+
+function isProblem(s){ return (s.x>0 || s.slow>0) && s.b < MASTER_BOX; }
+function problems(){ return DATA.filter(d=>isProblem(st(d.id))); }
+function learnedCount(){ return DATA.filter(d=>st(d.id).c>0).length; }
+
+/* ----- naechste Aufgabe waehlen (Basisfaelle seltener) ----- */
+function pickNext(){
+  let pool = DATA.slice();
+  if(focusMode){ const p = problems(); if(p.length) pool = p; }
+  else if(focusCat){ pool = pool.filter(d=>d.cat===focusCat); }
+  pool = pool.filter(d=>d.id!==lastId);
+  if(!pool.length) pool = focusCat ? DATA.filter(d=>d.cat===focusCat) : DATA.slice();
+
+  const due = pool.filter(d=>st(d.id).due <= step);
+  if(due.length){
+    const minBox = Math.min(...due.map(d=>st(d.id).b));
+    const urgent = due.filter(d=>st(d.id).b===minBox);
+    return urgent[Math.floor(Math.random()*urgent.length)];
+  }
+  let total=0;
+  const weights = pool.map(d=>{ const s=st(d.id);
+    let w=(BOX_WEIGHT[s.b]||.3)*(1 + s.x + s.slow*0.7)*(d.base?0.35:1); total+=w; return w; });
+  let r=Math.random()*total;
+  for(let k=0;k<pool.length;k++){ r-=weights[k]; if(r<=0) return pool[k]; }
+  return pool[pool.length-1];
+}
+
+/* ----- Zeitmessung (pausiert bei Overlay / Hintergrund) ----- */
+let tStart=0, tAcc=0, timing=false;
+function timerStart(){ tAcc=0; tStart=Date.now(); timing=true; }
+function timerElapsed(){ return tAcc + ((timing && !document.hidden) ? Date.now()-tStart : 0); }
+function pauseTimer(){ if(timing && !document.hidden) tAcc += Date.now()-tStart; timing=false; }
+function resumeTimer(){ if(!locked){ tStart=Date.now(); timing=true; } }
+document.addEventListener("visibilitychange", ()=>{
+  if(document.hidden) pauseTimer(); else if(!locked && !anyOverlay()) resumeTimer();
+});
+
+/* ----- Anzeige ----- */
+const ENDLBL = e => "-"+e;
+function adjBlankHtml(it){ return `<span class="adj"><b>${it.stem}</b><span class="blank"></span></span>`; }
+function adjFilledHtml(it, end, cls){ return `<span class="adj"><b>${it.stem}<span class="end ${cls}">${end}</span></b></span>`; }
+function sentenceHtml(it, end, cls){
+  const adj = end===undefined ? adjBlankHtml(it) : adjFilledHtml(it,end,cls);
+  return [it.pre, adj, it.post].filter(Boolean).join(" ");
+}
+function plainSentence(it, end){
+  return [it.pre, it.stem+end, it.post].filter(Boolean).join(" ").replace(/\s+([.,!?])/g,"$1");
+}
+function nClass(it){
+  if(it.ans.length>1) return ["n-beides","beides möglich"];
+  return it.ans[0]==="en" ? ["n-ja","mit -n"] : ["n-nein","kein -n"];
+}
+function renderTags(it, withN){
+  const [nc,nl] = nClass(it);
+  let html = `<span class="chip type-${it.type}">${it.type}</span>`;
+  html += `<span class="chip">${it.loc}</span>`;
+  if(withN) html += `<span class="chip ${nc}">${nl}</span>`;
+  tagsEl.innerHTML = html;
+}
+function renderChoices(it){
+  choicesEl.className = "choices c"+it.opts.length;
+  choicesEl.innerHTML = it.opts.map(e=>`<button class="choice" data-e="${e}">${ENDLBL(e)}</button>`).join("");
+  [...choicesEl.querySelectorAll(".choice")].forEach(b=> b.addEventListener("click", ()=>answer(b.dataset.e)) );
+}
+
+function render(){
+  cur = pickNext(); locked=false; awaiting=false;
+  sentEl.innerHTML = sentenceHtml(cur);
+  sentEl.classList.remove("in"); void sentEl.offsetWidth; sentEl.classList.add("in");
+  fbEl.innerHTML = "&nbsp;"; ruleEl.innerHTML=""; 
+  renderTags(cur,false);
+  renderChoices(cur);
+  canSpeak=false;
+  updateHud();
+  timerStart();
+}
+
+function answer(pick){
+  if(locked) return;
+  const elapsed = timerElapsed(); timing=false; locked=true;
+  const slow = elapsed > SLOW_MS;
+  const it = cur, s = st(it.id);
+  const correct = it.ans.includes(pick);
+  step++; lastId=it.id;
+
+  [...choicesEl.querySelectorAll(".choice")].forEach(b=>{
+    b.disabled=true; const e=b.dataset.e;
+    if(it.ans.includes(e)) b.classList.add("correct");
+    else if(e===pick) b.classList.add("wrong");
+    else b.classList.add("dim");
+  });
+
+  const shownEnd = correct ? pick : it.ans[0];
+  sentEl.innerHTML = sentenceHtml(it, shownEnd, "ok");
+  renderTags(it,true);
+  ruleEl.innerHTML = it.why;
+  canSpeak=true;
+  if(soundOn) speak(plainSentence(it, it.ans[0]));
+
+  if(correct){
+    if(streak===0) recordToBeat = best;
+    s.c++; streak++; if(streak>best) best=streak;
+    const extra = it.ans.length>1 ? ` <span class="tap">(auch ${ENDLBL(it.ans.find(a=>a!==pick))})</span>` : "";
+    if(slow){
+      s.slow++; s.due=step+3;
+      fbEl.innerHTML = `<span class="ok">richtig</span> <span class="tap">· ${Math.round(elapsed/1000)} s, kommt öfter dran</span>${extra}`;
+    }else{
+      s.b=Math.min(5,s.b+1); s.due=step+(DUE_GAP[s.b]||1);
+      fbEl.innerHTML = `<span class="ok">richtig</span> <span class="tap">· tippen für weiter</span>${extra}`;
+    }
+  }else{
+    if(streak>recordToBeat && streak>0) showToast(`🏆 Neuer Rekord: ${streak}er-Serie`);
+    s.x++; s.b=0; s.due=step+2; streak=0;
+    fbEl.innerHTML = `<span class="no">nicht ganz</span> <span class="tap">· du hattest ${ENDLBL(pick)} · tippen für weiter</span>`;
+  }
+  save(); updateHud(); awaiting=true; waitForTap();
+}
+
+function anyOverlay(){ return !!document.querySelector(".overlay.show"); }
+function advance(){ if(anyOverlay()){ pendingAdvance=true; return; } pendingAdvance=false; render(); }
+function waitForTap(){
+  const cont = (e)=>{
+    if(e.target.closest(".toolbar") || e.target.closest(".overlay") || e.target.closest(".choices") || e.target.closest(".focusbar")) return;
+    document.removeEventListener("pointerdown", cont, true); advance();
+  };
+  setTimeout(()=>document.addEventListener("pointerdown", cont, true), 160);
+}
+
+function updateHud(){
+  $("streak").textContent=streak; $("best").textContent=best;
+  $("learned").textContent=learnedCount(); $("total").textContent=DATA.length;
+  $("barFill").style.width=(learnedCount()/DATA.length*100).toFixed(1)+"%";
+  const pc=problems().length, badge=$("probCount");
+  badge.textContent=pc; badge.style.display = pc ? "inline-flex" : "none";
+  const fb=$("focusbar");
+  if(focusMode){ fb.classList.add("show"); $("focusLabel").textContent="Fokus: Schwächen"; }
+  else if(focusCat){ fb.classList.add("show"); $("focusLabel").textContent="Fokus: "+CATNAME[focusCat]; }
+  else fb.classList.remove("show");
+}
+
+let toastTimer=0;
+function showToast(msg){ const t=$("toast"); t.textContent=msg; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),2400); }
+
+/* ----- Vorlesen ----- */
+function speak(text){
+  try{
+    if(!("speechSynthesis" in window)) return;
+    window.speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text); u.lang="de-DE"; u.rate=.95;
+    const de=window.speechSynthesis.getVoices().find(v=>/^de/i.test(v.lang)); if(de) u.voice=de;
+    window.speechSynthesis.speak(u);
+  }catch(e){}
+}
+if("speechSynthesis" in window){ try{ window.speechSynthesis.getVoices(); }catch(e){} }
+
+/* ----- Tastatur (Desktop) ----- */
+document.addEventListener("keydown", e=>{
+  if(anyOverlay()) return;
+  if(awaiting){ if(["Enter"," ","ArrowRight"].includes(e.key)){ e.preventDefault(); advance(); } return; }
+  const n=parseInt(e.key,10);
+  if(n>=1 && n<=cur.opts.length) answer(cur.opts[n-1]);
+});
+
+/* ----- Video-Hinweis ausblenden ----- */
+
+
+/* ----- Ton ----- */
+$("soundBtn").addEventListener("click",()=>{
+  soundOn=!soundOn; $("soundIcon").textContent = soundOn?"🔊":"🔈";
+  $("soundBtn").classList.toggle("on",soundOn);
+  if(soundOn && canSpeak) speak(plainSentence(cur, cur.ans[0]));
+});
+
+/* ----- Schwächen-Panel ----- */
+function renderList(){
+  const items = problems().sort((a,b)=>{
+    const sa=st(a.id), sb=st(b.id);
+    if(sa.b!==sb.b) return sa.b-sb.b;
+    return (sb.x+sb.slow)-(sa.x+sa.slow);
+  });
+  $("probTitle").textContent = `Schwächen (${items.length})`;
+  const wrap=$("probList");
+  if(!items.length){ wrap.innerHTML = `<div class="empty">Noch keine Schwächen.<br>Falsch beantwortete oder über 6 Sekunden gezögerte Sätze erscheinen hier und werden öfter abgefragt.</div>`; return; }
+  wrap.innerHTML = items.map(it=>{
+    const s=st(it.id);
+    const dots=Array.from({length:MASTER_BOX},(_,k)=>`<span class="dot${s.b>k?' on':''}"></span>`).join("");
+    let tags=""; if(s.x>0) tags+=`<span class="tag x">✗ ${s.x}</span>`; if(s.slow>0) tags+=`<span class="tag s">⏱ ${s.slow}</span>`;
+    const sent = [it.pre, `${it.stem}<span class="pe">${it.ans[0]}</span>`, it.post].filter(Boolean).join(" ").replace(/\s+([.,!?])/g,"$1");
+    return `<div class="prow"><div class="pmain"><div class="psent">${sent}</div><div class="pmeta-line">${it.type} · ${it.loc}</div></div><div class="pright">${tags}<span class="dots">${dots}</span></div></div>`;
+  }).join("");
+}
+function openList(){ pauseTimer(); renderList(); $("listOverlay").classList.add("show"); }
+function closeList(){ $("listOverlay").classList.remove("show"); if(!anyOverlay()){ if(pendingAdvance) advance(); else resumeTimer(); } }
+$("listBtn").addEventListener("click", openList);
+$("closeList").addEventListener("click", closeList);
+$("listOverlay").addEventListener("click", e=>{ if(e.target===$("listOverlay")) closeList(); });
+$("focusToggle").addEventListener("click",()=>{
+  focusMode=!focusMode; if(focusMode) focusCat=null;
+  $("focusToggle").classList.toggle("on",focusMode);
+  $("focusToggle").textContent = focusMode ? "Fokus aktiv ✓" : "Nur diese üben";
+  updateHud();
+});
+
+/* ----- Kategorien-Panel ----- */
+function renderCat(){
+  const wrap=$("catBody");
+  wrap.innerHTML = CATS.map(([key,name,desc,type])=>{
+    const items=DATA.filter(d=>d.cat===key);
+    const learned=items.filter(d=>st(d.id).c>0).length;
+    const active = focusCat===key ? " active" : "";
+    return `<div class="crow${active}" data-cat="${key}"><span class="cdot ${type}"></span><div class="cname"><div class="cn">${name}</div><div class="cc">${desc} · ${learned}/${items.length} geübt</div></div><span class="cprac">${focusCat===key?"aktiv ✓":"üben"}</span></div>`;
+  }).join("");
+  [...wrap.querySelectorAll(".crow")].forEach(r=> r.addEventListener("click", ()=>{
+    const k=r.dataset.cat;
+    focusCat = focusCat===k ? null : k;
+    if(focusCat) focusMode=false, $("focusToggle").classList.remove("on"), $("focusToggle").textContent="Nur diese üben";
+    renderCat(); updateHud();
+  }));
+}
+function openCat(){ pauseTimer(); renderCat(); $("catOverlay").classList.add("show"); }
+function closeCat(){ $("catOverlay").classList.remove("show"); if(!anyOverlay()){ if(pendingAdvance) advance(); else resumeTimer(); } }
+$("catBtn").addEventListener("click", openCat);
+$("catStat").addEventListener("click", openCat);
+$("closeCat").addEventListener("click", closeCat);
+$("catOverlay").addEventListener("click", e=>{ if(e.target===$("catOverlay")) closeCat(); });
+
+/* ----- Fokus-Leiste ----- */
+$("focusClear").addEventListener("click",()=>{
+  focusMode=false; focusCat=null;
+  $("focusToggle").classList.remove("on"); $("focusToggle").textContent="Nur diese üben";
+  updateHud(); advance();
+});
+
+/* ----- Regeln ----- */
+function openRules(){ pauseTimer(); $("rulesOverlay").classList.add("show"); }
+function closeRules(){ $("rulesOverlay").classList.remove("show"); if(!anyOverlay()){ if(pendingAdvance) advance(); else resumeTimer(); } }
+$("rulesBtn").addEventListener("click", openRules);
+$("closeRules").addEventListener("click", closeRules);
+$("rulesOverlay").addEventListener("click", e=>{ if(e.target===$("rulesOverlay")) closeRules(); });
+
+/* ----- Reset ----- */
+$("resetBtn").addEventListener("click",()=>{ pauseTimer(); $("overlay").classList.add("show"); });
+$("cancelReset").addEventListener("click",()=>{ $("overlay").classList.remove("show"); resumeTimer(); });
+$("confirmReset").addEventListener("click",async()=>{
+  state={}; step=0; streak=0; best=0; recordToBeat=0; focusMode=false; focusCat=null;
+  $("focusToggle").classList.remove("on"); $("focusToggle").textContent="Nur diese üben";
+  ensureState(); await save(); $("overlay").classList.remove("show"); render();
+});
+
+(async function init(){ await load(); recordToBeat=best; render(); })();
+</script>
+</body>
+</html>
